@@ -1,1 +1,9 @@
 /.idea/
+models/axis.obj
+models/cube_sphere.mtl
+models/cube_sphere.obj
+models/mario.obj
+models/mountains.obj
+models/ship.obj
+models/teapot.obj
+/out
