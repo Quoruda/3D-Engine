@@ -117,6 +117,15 @@ public class Geometry {
     }
 
     public static float[] vector_normalise(float[] v){
+        float rsqrt = quick_reversed_sqrt(VectorDotProduct(v,v));
+        return new float[]{
+                v[0]*rsqrt,
+                v[1]*rsqrt,
+                v[2]*rsqrt,
+                1
+        };
+    }
+    public static float[] vector_normalise2(float[] v){
         float length = vector_length(v);
         return new float[]{
                 v[0]/length,
@@ -125,6 +134,7 @@ public class Geometry {
                 1
         };
     }
+
 
     public static float VectorDotProduct(float[] v1, float[] v2){
         return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];

@@ -7,8 +7,8 @@ public class Main {
 
         Mesh mesh;
 
-        for(int x = 0; x < 32; x++){
-            for(int z = 0; z < 32; z++){
+        for(int x = 0; x < 16; x++){
+            for(int z = 0; z < 16; z++){
                 for(int y = 0; y < 10; y++) {
                     mesh = new Mesh();
                     mesh.loadFromObjectFile("models/cube.obj");
