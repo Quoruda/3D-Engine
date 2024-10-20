@@ -3,11 +3,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
-public class Screen extends JPanel {
+public class Screen extends JPanel{
     public ArrayList<Engine.TriangleMesh> TrianglesToRaster;
+    public Engine engine;
 
-    public Screen() {
+
+    public Screen(Engine engine) {
         TrianglesToRaster = new ArrayList<>();
+        this.engine = engine;
     }
 
     public void paintComponent(Graphics g) {

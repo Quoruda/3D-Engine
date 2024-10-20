@@ -22,6 +22,9 @@ public class Mesh {
 
     private boolean position_changed = false;
     private boolean rotation_changed = false;
+    private boolean scale_changed = false;
+
+    private float scale = 1;
 
     public Mesh(){
 
@@ -46,9 +49,30 @@ public class Mesh {
         position_changed = true;
     }
 
+    public void setRotationX(float rotationX){
+        this.rotationX = rotationX;
+        rotation_changed = true;
+    }
 
-    public void loadFromObjectFile(String sFilename){
+    public void setRotationY(float rotationY){
+        this.rotationY = rotationY;
+        rotation_changed = true;
+    }
 
+    public void setRotationZ(float rotationZ){
+        this.rotationZ = rotationZ;
+        rotation_changed = true;
+    }
+
+    public void rotate(float rotationX, float rotationY, float rotationZ){
+        this.rotationX += rotationX;
+        this.rotationY += rotationY;
+        this.rotationZ += rotationZ;
+        rotation_changed = true;
+    }
+
+    public static Mesh loadFromObjectFile(String sFilename){
+        Mesh mesh = new Mesh();
         ArrayList<float[]> vertices = new ArrayList<float[]>();
         ArrayList<int[]> faces = new ArrayList<int[]>();
 
@@ -77,19 +101,19 @@ public class Mesh {
 
             }
 
-            this.vertices = new float[vertices.size()][4];
+            mesh.vertices = new float[vertices.size()][4];
             for(int i = 0; i < vertices.size(); i++){
-                this.vertices[i] = vertices.get(i);
+                mesh.vertices[i] = vertices.get(i);
             }
 
 
-            triangles = new int[n][3];
+            mesh.triangles = new int[n][3];
             int i = 0;
             for (int[] face: faces) {
-                triangles[i] = new int[]{face[0] - 1, face[1]-1, face[2]-1};
+                mesh.triangles[i] = new int[]{face[0] - 1, face[1]-1, face[2]-1};
                 i++;
                 if (face.length == 4 ) {
-                    triangles[i] = new int[]{ face[2]-1, face[3]-1,face[0]-1};
+                    mesh.triangles[i] = new int[]{ face[2]-1, face[3]-1,face[0]-1};
                     i++;
                 }
             }
@@ -98,13 +122,13 @@ public class Mesh {
             throw new RuntimeException(e);
         }
 
-        transformedVertices = new float[this.vertices.length][3];
-        transformedTriangles = new float[triangles.length][3][4];
-        normals = new float[triangles.length][4];
+        mesh.transformedVertices = new float[mesh.vertices.length][3];
+        mesh.transformedTriangles = new float[mesh.triangles.length][3][4];
+        mesh.normals = new float[mesh.triangles.length][4];
 
-        position_changed = true;
-        rotation_changed = true;
-
+        mesh.position_changed = true;
+        mesh.rotation_changed = true;
+        return mesh;
     }
 
     public float[][][] getTransformedTriangles(){
@@ -113,52 +137,50 @@ public class Mesh {
 
     public void update(){
 
-        if(position_changed || rotation_changed) {
-            //System.out.println(true);
+        if(!(position_changed || rotation_changed || scale_changed)) return;
+        //System.out.println(true);
 
-            float[][] matTrans = Geometry.getMatrixTranslation(positionX, positionY, positionZ);
+        float[][] matTrans = Geometry.getMatrixTranslation(positionX, positionY, positionZ);
 
-            float[][] matWorld = Geometry.getMatrixIdentity();
+        float[][] matWorld = Geometry.getMatrixIdentity();
 
-            float[][] matRotZ = Geometry.getMatrixRotationZ(rotationZ);
-            matWorld = Geometry.MatrixMultiplyMatrix(matRotZ, matWorld);
-            float[][] matRotY = Geometry.getMatrixRotationY(rotationY);
-            matWorld = Geometry.MatrixMultiplyMatrix(matRotY, matWorld);
-            float[][] matRotX = Geometry.getMatrixRotationX(rotationX);
-            matWorld = Geometry.MatrixMultiplyMatrix(matRotX, matWorld);
+        float[][] matRotZ = Geometry.getMatrixRotationZ(rotationZ);
+        matWorld = Geometry.MatrixMultiplyMatrix(matRotZ, matWorld);
+        float[][] matRotY = Geometry.getMatrixRotationY(rotationY);
+        matWorld = Geometry.MatrixMultiplyMatrix(matRotY, matWorld);
+        float[][] matRotX = Geometry.getMatrixRotationX(rotationX);
+        matWorld = Geometry.MatrixMultiplyMatrix(matRotX, matWorld);
 
-            matWorld = Geometry.MatrixMultiplyMatrix(matWorld, matTrans);
+        matWorld = Geometry.MatrixMultiplyMatrix(matWorld, matTrans);
 
-            int i;
-            for (i = 0; i < vertices.length; i++) {
-                transformedVertices[i] = Geometry.matrix_multiplyVector(matWorld, vertices[i]);
-            }
-
-            float[] line1, line2, normal;
-
-            for (i = 0; i < triangles.length; i++) {
-
-                transformedTriangles[i][0] = transformedVertices[triangles[i][0]];
-                transformedTriangles[i][1] = transformedVertices[triangles[i][1]];
-                transformedTriangles[i][2] = transformedVertices[triangles[i][2]];
-
-
-
-                line1 = Geometry.VectorSubstraction(transformedVertices[triangles[i][1]], transformedVertices[triangles[i][0]]);
-                line2 = Geometry.VectorSubstraction(transformedVertices[triangles[i][2]], transformedVertices[triangles[i][0]]);
-
-                normal = Geometry.vector_cross_product(line1, line2);
-                normal = Geometry.vector_normalise(normal);
-                normals[i] = normal;
-            }
-
-            position_changed = false;
-            rotation_changed = false;
-
+        int i;
+        for (i = 0; i < vertices.length; i++) {
+            transformedVertices[i] = vertices[i];
+            transformedVertices[i] = Geometry.VectorMultiply(transformedVertices[i], scale);
+            transformedVertices[i] = Geometry.matrix_multiplyVector(matWorld, transformedVertices[i]);
 
         }
 
+        float[] line1, line2, normal;
 
+        for (i = 0; i < triangles.length; i++) {
+
+            transformedTriangles[i][0] = transformedVertices[triangles[i][0]];
+            transformedTriangles[i][1] = transformedVertices[triangles[i][1]];
+            transformedTriangles[i][2] = transformedVertices[triangles[i][2]];
+
+
+
+            line1 = Geometry.VectorSubstraction(transformedVertices[triangles[i][1]], transformedVertices[triangles[i][0]]);
+            line2 = Geometry.VectorSubstraction(transformedVertices[triangles[i][2]], transformedVertices[triangles[i][0]]);
+
+            normal = Geometry.vector_cross_product(line1, line2);
+            normal = Geometry.vector_normalise(normal);
+            normals[i] = normal;
+        }
+
+        position_changed = false;
+        rotation_changed = false;
 
     }
 
@@ -170,4 +192,12 @@ public class Mesh {
         return normals[i];
     }
 
+    public float getScale() {
+        return scale;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
+        scale_changed = true;
+    }
 }
