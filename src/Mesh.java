@@ -5,29 +5,35 @@ import java.util.Scanner;
 
 public class Mesh {
 
-    private int[][] triangles;
-    private float[][][] transformedTriangles;
-    private float[][] normals;
+    public int[][] triangles;
+    public float[][][] transformedTriangles;
+    public float[][] normals;
+    public float[][][] tList;
 
-    private float[][] vertices;
-    private float[][] transformedVertices;
+    public float[][] vertices;
+    public float[][] transformedVertices;
 
     private float positionX;
     private float positionY;
     private float positionZ;
 
-    private float rotationX = 0;
-    private float rotationY = 0;
-    private float rotationZ = 0;
+    private float rotationX;
+    private float rotationY;
+    private float rotationZ;
 
-    private boolean position_changed = false;
-    private boolean rotation_changed = false;
-    private boolean scale_changed = false;
+    public boolean position_changed = false;
+    public boolean rotation_changed = false;
+    public boolean scale_changed = false;
 
     private float scale = 1;
 
     public Mesh(){
-
+        positionX = 0;
+        positionY = 0;
+        positionZ = 0;
+        rotationX = 0;
+        rotationY = 0;
+        rotationZ = 0;
     }
 
     public void setPositionX(float positionX){
@@ -190,6 +196,10 @@ public class Mesh {
 
     public float[] getNormal(int i){
         return normals[i];
+    }
+
+    public float[][] getT(int i){
+        return tList[i];
     }
 
     public float getScale() {

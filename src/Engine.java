@@ -20,12 +20,14 @@ public class Engine{
     }
 
     public static class TriangleMesh{
-        public float[][] t;
+        public float[][] p;
         public int[] color;
+        public float[][] t;
 
-        public TriangleMesh(float[][] t, float lum){
-            this.t = t;
+        public TriangleMesh(float[][] p, float lum, float[][] t){
+            this.p = p;
             this.color = getColour(lum);
+            this.t = t;
         }
 
     }
@@ -42,6 +44,7 @@ public class Engine{
 
     public void mainLoop(){
         Screen screen = new Screen(this);
+        screen.drawLines = true;
         JFrame frame = new JFrame("Engine");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, height);
@@ -148,6 +151,10 @@ public class Engine{
         float dp;
         float clipped_distance;
         ArrayList<float[][]> clipped;
+        ArrayList<Triangle> clippedTriangles = new ArrayList<>();
+        Triangle tempTriangle = new Triangle();
+        float[][] tri;
+        float[][] t;
 
         for(Mesh mesh : meshes){
             mesh.update();
@@ -160,10 +167,19 @@ public class Engine{
                     triViewed =  Geometry.matrix_multiplyTriangle(matView, triTransformed);
 
                     clipped_distance = 0.1f;
-                    clipped = Geometry.Triangle_ClipAgainstPlane(new float[]{0,0,clipped_distance,1}, new float[]{0,0,1,1}, triViewed);
+                    tempTriangle.p = triViewed;
+                    tempTriangle.t = mesh.getT(iTri);
+                    clippedTriangles = Geometry.Triangle_ClipAgainstPlane(new float[]{0,0,clipped_distance,1}, new float[]{0,0,1,1}, tempTriangle);
 
-                    for (float[][] tri : clipped) {
+                    for (Triangle triangle : clippedTriangles) {
+                        tri = triangle.p;
                         triProjected =  Geometry.matrix_multiplyTriangle(matProj, tri);
+
+                        t = new float[3][2];
+                        t[0] = triangle.t[0];
+                        t[1] = triangle.t[1];
+                        t[2] = triangle.t[2];
+
                         triProjected[0] = Geometry.VectorDivision(triProjected[0], triProjected[0][3]);
                         triProjected[1] = Geometry.VectorDivision(triProjected[1], triProjected[1][3]);
                         triProjected[2] = Geometry.VectorDivision(triProjected[2], triProjected[2][3]);
@@ -183,7 +199,7 @@ public class Engine{
                         triProjected[2][0] *= 0.5f*width;
                         triProjected[2][1] *= 0.5f*height;
 
-                        trianglesToRaster.add(new TriangleMesh(triProjected, dp));
+                        trianglesToRaster.add(new TriangleMesh(triProjected, dp, t));
                     }
                 }else{
                     //System.out.println();
@@ -199,7 +215,7 @@ public class Engine{
 
             @Override
             public int compare(TriangleMesh t1, TriangleMesh t2) {
-                return calculDistance(t2.t).compareTo(calculDistance(t1.t));
+                return calculDistance(t2.p).compareTo(calculDistance(t1.p));
             }
         });
         //Collections.reverse(trianglesToRaster);

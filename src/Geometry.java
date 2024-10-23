@@ -3,8 +3,6 @@ import java.util.ArrayList;
 
 public class Geometry {
 
-
-
     public static float[][] getMatrixRotationY(float fAngleRad){
         return new float[][]{
                 {(float)Math.cos(fAngleRad),0 ,(float) Math.sin(fAngleRad), 0 },
@@ -211,14 +209,14 @@ public class Geometry {
         System.out.println();
     }
 
-    public static float[] Vector_IntersectPlane(float[] plane_p, float[] plane_n, float[] lineStart, float[] lineEnd){
+    public static float[] Vector_IntersectPlane(float[] plane_p, float[] plane_n, float[] lineStart, float[] lineEnd, MutableValue<Float> t){
         plane_n = vector_normalise(plane_n);
         float plane_d = -VectorDotProduct(plane_n, plane_p);
         float ad = VectorDotProduct(lineStart, plane_n);
         float bd = VectorDotProduct(lineEnd, plane_n);
-        float t = (-plane_d -ad )/(bd - ad);
+        t.v = (-plane_d -ad )/(bd - ad);
         float[] lineStartToEnd = VectorSubstraction(lineEnd, lineStart);
-        float[] lineToIntersect = VectorMultiply(lineStartToEnd, t);
+        float[] lineToIntersect = VectorMultiply(lineStartToEnd, t.v);
         return VectorAddition(lineStart, lineToIntersect);
 
     }
@@ -227,36 +225,43 @@ public class Geometry {
         return plane_n[0]*p[0]+plane_n[1]*p[1]+plane_n[2]*p[2] -VectorDotProduct(plane_n, plane_p);
     }
 
-    public static ArrayList<float[][]> Triangle_ClipAgainstPlane(float[] plane_p, float[] plane_n , float[][] in_tri) {
+    public static ArrayList<Triangle> Triangle_ClipAgainstPlane(float[] plane_p, float[] plane_n , Triangle in_tri) {
         plane_n = vector_normalise(plane_n);
 
         float[][] inside_points = new float[3][4];
         int nInsidePointCount = 0;
         float[][] outside_points = new float[3][4];
         int nOutsidePointCount = 0;
+        float[][] inside_tex = new float[3][2];
+        int nInsideTexCount = 0;
+        float[][] outside_tex = new float[3][2];
+        int nOutsideTexCount = 0;
 
-        float d0 = distancePlan(plane_n,plane_p, in_tri[0]);
-        float d1 = distancePlan(plane_n,plane_p ,in_tri[1]);
-        float d2 = distancePlan(plane_n,plane_p ,in_tri[2]);
+        float d0 = distancePlan(plane_n,plane_p, in_tri.p[0]);
+        float d1 = distancePlan(plane_n,plane_p ,in_tri.p[1]);
+        float d2 = distancePlan(plane_n,plane_p ,in_tri.p[2]);
 
         if (d0 >= 0) {
-            inside_points[nInsidePointCount++] = in_tri[0];
+            inside_points[nInsidePointCount++] = in_tri.p[0];
+            inside_tex[nInsideTexCount++] = in_tri.t[0];
         } else {
-            outside_points[nOutsidePointCount++] = in_tri[0];
+            outside_points[nOutsidePointCount++] = in_tri.p[0];
+            outside_tex[nOutsideTexCount++] = in_tri.t[0];
         }
         if (d1 >= 0) {
-            inside_points[nInsidePointCount++] = in_tri[1];
+            inside_points[nInsidePointCount++] = in_tri.p[1];
         } else {
-            outside_points[nOutsidePointCount++] = in_tri[1];
+            outside_points[nOutsidePointCount++] = in_tri.p[1];
         }
         if (d2 >= 0) {
-            inside_points[nInsidePointCount++] = in_tri[2];
+            inside_points[nInsidePointCount++] = in_tri.p[2];
         } else {
-            outside_points[nOutsidePointCount++] = in_tri[2];
+            outside_points[nOutsidePointCount++] = in_tri.p[2];
         }
 
-        ArrayList<float[][]> out_triangles = new ArrayList<>();
-        float[][] out_tri1, out_tri2;
+        ArrayList<Triangle> out_triangles = new ArrayList<>();
+        Triangle out_tri1 = new Triangle();
+        Triangle out_tri2 = new Triangle();
 
         if (nInsidePointCount == 0) {
             //return out_triangles;
@@ -266,25 +271,42 @@ public class Geometry {
         }
         else if (nInsidePointCount == 1 && nOutsidePointCount == 2) {
 
-            out_tri1 = new float[3][4];
+            out_tri1 = new Triangle();
 
-            out_tri1[0] = inside_points[0];
-            out_tri1[1] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0]);
-            out_tri1[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[1]);
+            out_tri1.p[0] = inside_points[0];
+            out_tri1.t[0] = inside_tex[0];
+
+            MutableValue<Float> t = new MutableValue<>();
+            out_tri1.p[1] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0], t);
+            out_tri1.t[1][0] = t.v * (outside_tex[0][0] - inside_tex[0][0]) + inside_tex[0][0];
+            out_tri1.t[1][1] = t.v * (outside_tex[0][1] - inside_tex[0][1]) + inside_tex[0][1];
+
+            out_tri1.p[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[1], t);
+            out_tri1.t[2][0] = t.v * (outside_tex[1][0] - inside_tex[0][0]) + inside_tex[0][0];
+            out_tri1.t[2][1] = t.v * (outside_tex[1][1] - inside_tex[0][1]) + inside_tex[0][1];
 
             out_triangles.add(out_tri1);
         }
         else if (nInsidePointCount == 2 && nOutsidePointCount == 1) {
-            out_tri1 = new float[3][4];
-            out_tri1[0] = inside_points[0];
-            out_tri1[1] = inside_points[1];
-            out_tri1[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0]);
+            out_tri1.p = new float[3][4];
+            out_tri1.p[0] = inside_points[0];
+            out_tri1.p[1] = inside_points[1];
+            out_tri1.t[0] = inside_tex[0];
+            out_tri1.t[1] = inside_tex[1];
+
+            MutableValue<Float> t = new MutableValue<>();
+            out_tri1.p[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0],t);
+            out_tri1.t[2][0] = t.v * (outside_tex[0][0] - inside_tex[0][0]) + inside_tex[0][0];
+            out_tri1.t[2][1] = t.v * (outside_tex[0][1] - inside_tex[0][1]) + inside_tex[0][1];
             out_triangles.add(out_tri1);
 
-            out_tri2 = new float[3][4];
-            out_tri2[0] = inside_points[1];
-            out_tri2[1] = out_tri1[2];
-            out_tri2[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[1], outside_points[0]);
+            out_tri2.p = new float[3][4];
+            out_tri2.p[0] = inside_points[1];
+            out_tri2.p[1] = out_tri1.p[2];
+            out_tri2.p[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[1], outside_points[0], t);
+            out_tri2.t[2][0] = t.v * (outside_tex[0][0] - inside_tex[1][0]) + inside_tex[1][0];
+            out_tri2.t[2][1] = t.v * (outside_tex[0][1] - inside_tex[1][1]) + inside_tex[1][1];
+
             out_triangles.add(out_tri2);
 
         }else{
@@ -296,5 +318,4 @@ public class Geometry {
         return out_triangles;
     }
 }
-
 
