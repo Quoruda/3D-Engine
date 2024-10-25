@@ -92,5 +92,6 @@ public class Main {
         engine.setScene(scene);
 
         engine.mainLoop();
+
     }
 }

@@ -1,14 +1,26 @@
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+
 public class Texture {
 
     int width, height;
     int[] pixels;
 
-    public Texture(String filename) {
-        width = 10;
-        height = 10;
+    public Texture() {
+        width = 100;
+        height = 100;
         pixels = new int[width*height];
-        for (int i = 0; i < width*height; i++) {
-            pixels[i] = 10000;
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                if(x < width/2 != y < height/2) {
+                    pixels[x + y * width] = 0xFFFFFF;
+                }else {
+                    //violet
+                    pixels[x + y * width] = 0x8A2BE2;
+                }
+            }
         }
     }
 
@@ -17,6 +29,4 @@ public class Texture {
         int y = (int)(v * height);
         return pixels[Math.floorMod(x + y * width, pixels.length)];
     }
-
-
 }

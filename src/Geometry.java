@@ -302,7 +302,9 @@ public class Geometry {
 
             out_tri2.p = new float[3][4];
             out_tri2.p[0] = inside_points[1];
+            out_tri2.t[0] = inside_tex[1];
             out_tri2.p[1] = out_tri1.p[2];
+            out_tri2.t[1] = out_tri1.t[2];
             out_tri2.p[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[1], outside_points[0], t);
             out_tri2.t[2][0] = t.v * (outside_tex[0][0] - inside_tex[1][0]) + inside_tex[1][0];
             out_tri2.t[2][1] = t.v * (outside_tex[0][1] - inside_tex[1][1]) + inside_tex[1][1];
