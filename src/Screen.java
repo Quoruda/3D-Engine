@@ -42,7 +42,8 @@ public class Screen extends JPanel{
 
             //g.fillPolygon(new int[]{x0, x1, x2},new int[]{y0, y1, y2},3);
 
-            TexturedTriangle((int) t.p[0][0],(int) t.p[0][1], t.t[0][0], t.t[0][1],
+            TexturedTriangle(
+                    (int) t.p[0][0], (int) t.p[0][1], t.t[0][0], t.t[0][1],
                     (int) t.p[1][0], (int) t.p[1][1], t.t[1][0], t.t[1][1],
                     (int) t.p[2][0], (int) t.p[2][1], t.t[2][0], t.t[2][1], g,texture );
 
@@ -65,7 +66,7 @@ public class Screen extends JPanel{
         int tempI;
         float tempF;
 
-        if (y1 < y2){
+        if (y2 < y1){
             //swap y1, y2
             tempI = y1;y1 = y2;y2 = tempI;
             //swap x1, x2

@@ -250,13 +250,17 @@ public class Geometry {
         }
         if (d1 >= 0) {
             inside_points[nInsidePointCount++] = in_tri.p[1];
+            inside_tex[nInsideTexCount++] = in_tri.t[1];
         } else {
             outside_points[nOutsidePointCount++] = in_tri.p[1];
+            outside_tex[nOutsideTexCount++] = in_tri.t[1];
         }
         if (d2 >= 0) {
             inside_points[nInsidePointCount++] = in_tri.p[2];
+            inside_tex[nInsideTexCount++] = in_tri.t[2];
         } else {
             outside_points[nOutsidePointCount++] = in_tri.p[2];
+            outside_tex[nOutsideTexCount++] = in_tri.t[2];
         }
 
         ArrayList<Triangle> out_triangles = new ArrayList<>();
