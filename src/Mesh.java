@@ -99,7 +99,6 @@ public class Mesh {
         ArrayList<int[]> faces = new ArrayList<int[]>();
         ArrayList<int[]> ftexs = new ArrayList<int[]>();
 
-
         try {
             int n = 0;
             File file = new File(sFilename);
@@ -186,8 +185,6 @@ public class Mesh {
         mesh.position_changed = true;
         mesh.rotation_changed = true;
 
-        System.out.println(mesh.verticesTex.length);
-
         return mesh;
     }
 
@@ -195,7 +192,8 @@ public class Mesh {
         return transformedTriangles;
     }
 
-    public void update(){
+    public void update(float deltaTime){
+        texture.update(deltaTime);
         updateTexture();
 
         if(!(position_changed || rotation_changed || scale_changed)) return;
@@ -271,5 +269,13 @@ public class Mesh {
     public void setScale(float scale) {
         this.scale = scale;
         scale_changed = true;
+    }
+
+    public void setTexture(Texture texture){
+        this.texture = texture;
+    }
+
+    public Texture getTexture(){
+        return texture;
     }
 }

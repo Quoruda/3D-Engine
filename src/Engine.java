@@ -23,11 +23,13 @@ public class Engine{
         public float[][] p;
         public int[] color;
         public float[][] t;
+        public Texture texture;
 
-        public TriangleMesh(float[][] p, float lum, float[][] t){
+        public TriangleMesh(float[][] p, float lum, float[][] t, Texture texture){
             this.p = p;
             this.color = getColour(lum);
             this.t = t;
+            this.texture = texture;
         }
 
     }
@@ -44,7 +46,6 @@ public class Engine{
 
     public void mainLoop(){
         Screen screen = new Screen(this);
-        screen.drawLines = true;
         JFrame frame = new JFrame("Engine");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, height);
@@ -157,7 +158,7 @@ public class Engine{
         float[][] t;
 
         for(Mesh mesh : meshes){
-            mesh.update();
+            mesh.update(deltaTime);
             for(int iTri = 0; iTri < mesh.getTransformedTriangles().length; iTri++) {
                 triTransformed = mesh.getTransformedTriangle(iTri);
                 normal = mesh.getNormal(iTri);
@@ -209,7 +210,7 @@ public class Engine{
                         triProjected[2][0] *= 0.5f*width;
                         triProjected[2][1] *= 0.5f*height;
 
-                        trianglesToRaster.add(new TriangleMesh(triProjected, dp, t));
+                        trianglesToRaster.add(new TriangleMesh(triProjected, dp, t, mesh.getTexture()));
                     }
                 }else{
                     //System.out.println();

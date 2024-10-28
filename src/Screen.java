@@ -6,8 +6,6 @@ public class Screen extends JPanel{
     public ArrayList<Engine.TriangleMesh> TrianglesToRaster;
     public Engine engine;
     public boolean drawLines = false;
-    Texture texture = new Texture();
-
 
     public Screen(Engine engine) {
         TrianglesToRaster = new ArrayList<>();
@@ -45,7 +43,7 @@ public class Screen extends JPanel{
             TexturedTriangle(
                     (int) t.p[0][0], (int) t.p[0][1], t.t[0][0], t.t[0][1], t.t[0][2],
                     (int) t.p[1][0], (int) t.p[1][1], t.t[1][0], t.t[1][1], t.t[1][2],
-                    (int) t.p[2][0], (int) t.p[2][1], t.t[2][0], t.t[2][1], t.t[2][2],  g,texture );
+                    (int) t.p[2][0], (int) t.p[2][1], t.t[2][0], t.t[2][1], t.t[2][2],  g,t.texture );
 
             g.setColor(Color.RED);
             if(drawLines){

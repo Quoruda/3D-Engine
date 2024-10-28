@@ -7,9 +7,6 @@ public class Main {
     public static void main(String[] args) {
         Engine engine = new Engine();
 
-
-
-
         /*
         Mesh sphere = Mesh.loadFromObjectFile("models/sphere.obj");
         sphere.setPosition(0, 0, 0);
@@ -23,17 +20,17 @@ public class Main {
         cube4.setPosition(0, 0, -5);
 
          */
-
+        /*
         Mesh cube = new Mesh();
         cube.vertices = new float[][]{
-                {0.0f, 0.0f, 0.0f},
-                {1.0f, 0.0f, 0.0f},
-                {1.0f, 1.0f, 0.0f},
-                {0.0f, 1.0f, 0.0f},
-                {0.0f, 0.0f, 1.0f},
-                {1.0f, 0.0f, 1.0f},
-                {1.0f, 1.0f, 1.0f},
-                {0.0f, 1.0f, 1.0f}
+                {0.0f, 0.0f, 0.0f},//0
+                {1.0f, 0.0f, 0.0f},//1
+                {1.0f, 1.0f, 0.0f},//2
+                {0.0f, 1.0f, 0.0f},//3
+                {0.0f, 0.0f, 1.0f},//4
+                {1.0f, 0.0f, 1.0f},//5
+                {1.0f, 1.0f, 1.0f},//6
+                {0.0f, 1.0f, 1.0f}//7
         };
 
         cube.triangles = new int[][]{
@@ -47,24 +44,29 @@ public class Main {
                 {4, 3, 0},
                 {3, 7, 6},
                 {3, 6, 2},
-                {4, 0, 1},
-                {4, 1, 5}
+                {5, 4, 0},
+                {5, 0, 1}
         };
 
         cube.tList = new float[][][]{
-                {{0, 1}, {0, 0}, {1, 0}},
-                {{0, 1}, {1, 0}, {1, 1}},
-                {{0, 1}, {0, 0}, {1, 0}},
-                {{0, 1}, {1, 0}, {1, 1}},
-                {{0, 1}, {0, 0}, {1, 0}},
-                {{0, 1}, {1, 0}, {1, 1}},
-                {{0, 1}, {0, 0}, {1, 0}},
-                {{0, 1}, {1, 0}, {1, 1}},
-                {{0, 1}, {0, 0}, {1, 0}},
-                {{0, 1}, {1, 0}, {1, 1}},
-                {{0, 1}, {0, 0}, {1, 0}},
-                {{0, 1}, {1, 0}, {1, 1}}
+                {{0, 1, 1}, {0, 0, 1}, {1, 0, 1}},
+                {{0, 1, 1}, {1, 0, 1}, {1, 1, 1}},
+                {{0, 1, 1}, {0, 0, 1}, {1, 0, 1}},
+                {{0, 1, 1}, {1, 0, 1}, {1, 1, 1}},
+                {{0, 1, 1}, {0, 0, 1}, {1, 0, 1}},
+                {{0, 1, 1}, {1, 0, 1}, {1, 1, 1}},
+                {{0, 1, 1}, {0, 0, 1}, {1, 0, 1}},
+                {{0, 1, 1}, {1, 0, 1}, {1, 1, 1}},
+                {{0, 1, 1}, {0, 0, 1}, {1, 0, 1}},
+                {{0, 1, 1}, {1, 0, 1}, {1, 1, 1}},
+                {{0, 1, 1}, {0, 0, 1}, {1, 0, 1}},
+                {{0, 1, 1}, {1, 0, 1}, {1, 1, 1}}
         };
+
+         */
+
+        Mesh cube = Mesh.loadFromObjectFile("models/cube.obj", true);
+        cube.setTexture(Texture.getGrid(256, 256, 16, 0xFF0000, 0x00FF00));
 
         cube.transformedVertices = new float[cube.vertices.length][3];
         cube.transformedTriangles = new float[cube.triangles.length][3][4];
@@ -72,14 +74,14 @@ public class Main {
 
         cube.position_changed = true;
         cube.rotation_changed = true;
-        cube.update();
 
         Scene scene = new Scene(){
             @Override
             public void update(float deltaTime){
-                float v = deltaTime * 0.1f;
+                float v = deltaTime * 0.3f;
                 //sphere.rotate(v, 0f, 0f);
                 //sphere.setScale(sphere.getScale()+0.02f);
+                cube.rotate(v, v, v);
             }
         };
 
