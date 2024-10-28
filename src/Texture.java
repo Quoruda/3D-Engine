@@ -25,8 +25,6 @@ public class Texture {
     }
 
     public int getPixel(float u, float v) {
-        int x = (int)(u * width);
-        int y = (int)(v * height);
-        return pixels[Math.floorMod(x + y * width, pixels.length)];
+        return pixels[Math.floorMod((int)(u * width) + (int)(v * height) * width, pixels.length)];
     }
 }

@@ -168,8 +168,8 @@ public class Engine{
 
                     clipped_distance = 0.1f;
                     tempTriangle.p = triViewed;
-                    //tempTriangle.t = Geometry.copyVector(mesh.getT(iTri));
-                    tempTriangle.t = mesh.getT(iTri);
+                    tempTriangle.t = Geometry.copyTriangle(mesh.getT(iTri));
+                    //tempTriangle.t = mesh.getT(iTri);
                     clippedTriangles = Geometry.Triangle_ClipAgainstPlane(new float[]{0,0,clipped_distance,1}, new float[]{0,0,1,1}, tempTriangle);
 
                     for (Triangle triangle : clippedTriangles) {
@@ -177,6 +177,18 @@ public class Engine{
                         triProjected =  Geometry.matrix_multiplyTriangle(matProj, tri);
 
                         t = triangle.t;
+
+                        t[0][0] /= triProjected[0][3];
+                        t[1][0] /= triProjected[1][3];
+                        t[2][0] /= triProjected[2][3];
+
+                        t[0][1] /= triProjected[0][3];
+                        t[1][1] /= triProjected[1][3];
+                        t[2][1] /= triProjected[2][3];
+
+                        t[0][2] = 1.0f/triProjected[0][3];
+                        t[1][2] = 1.0f/triProjected[1][3];
+                        t[2][2] = 1.0f/triProjected[2][3];
 
                         triProjected[0] = Geometry.VectorDivision(triProjected[0], triProjected[0][3]);
                         triProjected[1] = Geometry.VectorDivision(triProjected[1], triProjected[1][3]);

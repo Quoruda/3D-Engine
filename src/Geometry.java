@@ -232,9 +232,9 @@ public class Geometry {
         int nInsidePointCount = 0;
         float[][] outside_points = new float[3][4];
         int nOutsidePointCount = 0;
-        float[][] inside_tex = new float[3][2];
+        float[][] inside_tex = new float[3][3];
         int nInsideTexCount = 0;
-        float[][] outside_tex = new float[3][2];
+        float[][] outside_tex = new float[3][3];
         int nOutsideTexCount = 0;
 
         float d0 = distancePlan(plane_n,plane_p, in_tri.p[0]);
@@ -284,10 +284,12 @@ public class Geometry {
             out_tri1.p[1] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0], t);
             out_tri1.t[1][0] = t.v * (outside_tex[0][0] - inside_tex[0][0]) + inside_tex[0][0];
             out_tri1.t[1][1] = t.v * (outside_tex[0][1] - inside_tex[0][1]) + inside_tex[0][1];
+            out_tri1.t[1][2] = t.v * (outside_tex[0][2] - inside_tex[0][2]) + inside_tex[0][2];
 
             out_tri1.p[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[1], t);
             out_tri1.t[2][0] = t.v * (outside_tex[1][0] - inside_tex[0][0]) + inside_tex[0][0];
             out_tri1.t[2][1] = t.v * (outside_tex[1][1] - inside_tex[0][1]) + inside_tex[0][1];
+            out_tri1.t[2][2] = t.v * (outside_tex[1][2] - inside_tex[0][2]) + inside_tex[0][2];
 
             out_triangles.add(out_tri1);
         }
@@ -302,6 +304,7 @@ public class Geometry {
             out_tri1.p[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0],t);
             out_tri1.t[2][0] = t.v * (outside_tex[0][0] - inside_tex[0][0]) + inside_tex[0][0];
             out_tri1.t[2][1] = t.v * (outside_tex[0][1] - inside_tex[0][1]) + inside_tex[0][1];
+            out_tri1.t[2][2] = t.v * (outside_tex[0][2] - inside_tex[0][2]) + inside_tex[0][2];
             out_triangles.add(out_tri1);
 
             out_tri2.p = new float[3][4];
@@ -312,6 +315,7 @@ public class Geometry {
             out_tri2.p[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[1], outside_points[0], t);
             out_tri2.t[2][0] = t.v * (outside_tex[0][0] - inside_tex[1][0]) + inside_tex[1][0];
             out_tri2.t[2][1] = t.v * (outside_tex[0][1] - inside_tex[1][1]) + inside_tex[1][1];
+            out_tri2.t[2][2] = t.v * (outside_tex[0][2] - inside_tex[1][2]) + inside_tex[1][2];
 
             out_triangles.add(out_tri2);
 
@@ -323,5 +327,16 @@ public class Geometry {
         }
         return out_triangles;
     }
+
+    public static float[][] copyTriangle(float[][] t){
+        float[][] copy = new float[t.length][t[0].length];
+        for(int i = 0; i < t.length; i++){
+            for(int j = 0; j < t[i].length; j++){
+                copy[i][j] = t[i][j];
+            }
+        }
+        return copy;
+    }
+
 }
 

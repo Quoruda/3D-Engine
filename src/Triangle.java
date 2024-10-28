@@ -9,7 +9,7 @@ public class Triangle {
     }
 
     public Triangle(){
-        this.p = new float[3][3];
-        this.t = new float[3][2];
+        this.p = new float[3][4];
+        this.t = new float[3][3];
     }
 }
