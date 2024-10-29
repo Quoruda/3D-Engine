@@ -6,6 +6,7 @@ public class Screen extends JPanel{
     public ArrayList<Engine.TriangleMesh> TrianglesToRaster;
     public Engine engine;
     public boolean drawLines = false;
+    private float[] pDepthBuffer;
 
     public Screen(Engine engine) {
         TrianglesToRaster = new ArrayList<>();
@@ -14,8 +15,8 @@ public class Screen extends JPanel{
     }
 
     public void paintComponent(Graphics g) {
-
         super.paintComponent(g);
+        pDepthBuffer = new float[getHeight()* getWidth()];
 
         ArrayList<Engine.TriangleMesh> trianglesToRaster = TrianglesToRaster;
 
@@ -136,6 +137,8 @@ public class Screen extends JPanel{
         float tex_eu, tex_ev, tex_ew;
 
         if (dy1 != 0){
+            if(y1 < 0) y1 = 0;
+            if(y2 > getHeight()-1) y2 = getHeight()-1;
             for (int i = y1; i <= y2; i++){
                 int ax = (int)(x1 + (i - y1) * dax_step);
                 int bx = (int)(x1 + (i - y1) * dbx_step);
@@ -165,19 +168,22 @@ public class Screen extends JPanel{
 
                 float tstep = 1.0f / (float)(bx - ax);
                 float t = 0.0f;
-
+                if(ax < 0) ax = 0;
+                if(bx > getWidth()-1) bx = getWidth()-1;
                 for (int j = ax; j < bx; j++){
                     tex_u = (1.0f - t) * tex_su + t * tex_eu;
                     tex_v = (1.0f - t) * tex_sv + t * tex_ev;
                     tex_w = (1.0f - t) * tex_sw + t * tex_ew;
 
-                    color = texture.getPixel(tex_u/tex_w, tex_v/tex_w);
-                    cR = (color >> 16) & 0xFF;
-                    cG = (color >> 8) & 0xFF;
-                    cB = color & 0xFF;
-                    g.setColor(new Color((int)(cR*lum), (int)(cG*lum), (int)(cB*lum)));
-                    g.fillRect(j, i, 1, 1);
-
+                    if(tex_w > pDepthBuffer[i*getWidth()+j]) {
+                        color = texture.getPixel(tex_u / tex_w, tex_v / tex_w);
+                        cR = (color >> 16) & 0xFF;
+                        cG = (color >> 8) & 0xFF;
+                        cB = color & 0xFF;
+                        g.setColor(new Color((int) (cR * lum), (int) (cG * lum), (int) (cB * lum)));
+                        g.fillRect(j, i, 1, 1);
+                        pDepthBuffer[i * getWidth() + j] = tex_w;
+                    }
                     t += tstep;
                 }
             }
