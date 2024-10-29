@@ -157,7 +157,69 @@ public class Mesh {
 
             }
 
+            if(!hasTexture){
+                float minX = vertices.get(0)[0];
+                float minY = vertices.get(0)[1];
+                float minZ = vertices.get(0)[2];
+                float maxX = vertices.get(0)[0];
+                float maxY = vertices.get(0)[1];
+                float maxZ = vertices.get(0)[2];
+                float x, y, z;
+                for(float[] vertex: vertices){
+                    x = vertex[0];
+                    y = vertex[0];
+                    z = vertex[0];
+                    if(x > maxX){
+                        maxX = x;
+                    }
+                    if(x < minX){
+                        minX = x;
+                    }
+                    if(y > maxY){
+                        maxY = y;
+                    }
+                    if(y < minY){
+                        minY = y;
+                    }
+                    if(z > maxZ){
+                        maxZ = z;
+                    }
+                    if(z < minZ){
+                        minZ = z;
+                    }
+                }
+                float u, v;
+                for(float[] vertex: vertices){
+                    x = vertex[0];
+                    y = vertex[1];
+                    z = vertex[2];
 
+                    //test
+                    //u = (x-minX)/(maxX-minX);
+                    //v = (z-minZ)/(maxZ-minZ);
+
+                    //cylindrical
+                    //float angle = (float) Math.atan2(z, x);
+                    //u = (angle+ (float)Math.PI)/(2*(float)Math.PI);
+                    //v = (y-minY)/(maxX-minY);
+
+                    //spherical
+                    float theta = (float)Math.atan2(z, x);
+                    float phi = (float) Math.acos((y-minY)/(maxX-minY));
+                    u = (theta+(float)Math.PI)/(2*(float)Math.PI);
+                    v = phi/(float)Math.PI;
+
+                    //add
+                    vtexs.add(new float[]{u, v, 1.0f});
+                }
+                for(int[] face: faces){
+                    if(face.length == 3){
+                        ftexs.add(new int[]{face[0], face[1], face[2]});
+                    }else{
+                        ftexs.add(new int[]{face[0], face[1], face[2], face[3]});
+                    }
+                }
+            }
 
             mesh.vertices = new float[vertices.size()][4];
             for(int i = 0; i < vertices.size(); i++){
