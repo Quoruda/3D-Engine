@@ -15,10 +15,8 @@ public class Screen extends JPanel{
     public void paintComponent(Graphics g) {
 
         super.paintComponent(g);
-        ArrayList<Engine.TriangleMesh> trianglesToRaster = TrianglesToRaster;
 
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, getWidth(), getHeight()); // Effacer le contenu de la fenêtre
+        ArrayList<Engine.TriangleMesh> trianglesToRaster = TrianglesToRaster;
 
         int x0;
         int y0;
@@ -43,11 +41,12 @@ public class Screen extends JPanel{
                     (int) t.p[1][0], (int) t.p[1][1], t.t[1][0], t.t[1][1], t.t[1][2],
                     (int) t.p[2][0], (int) t.p[2][1], t.t[2][0], t.t[2][1], t.t[2][2],  g,t.texture, t.lum );
 
-            g.setColor(Color.RED);
+            g.setColor(Color.BLACK);
             if(drawLines){
-                g.drawLine(x0, y0, x1, y1);
-                g.drawLine(x1, y1, x2, y2);
-                g.drawLine(x2, y2, x0, y0);
+                g.drawPolyline(new int[]{x0, x1, x2}, new int[]{y0, y1, y2}, 3);
+                //g.drawLine(x0, y0, x1, y1);
+                //g.drawLine(x1, y1, x2, y2);
+                //g.drawLine(x2, y2, x0, y0);
             }
 
 
