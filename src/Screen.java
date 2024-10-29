@@ -10,6 +10,7 @@ public class Screen extends JPanel{
     public Screen(Engine engine) {
         TrianglesToRaster = new ArrayList<>();
         this.engine = engine;
+        this.setBackground(new Color(0x000000));
     }
 
     public void paintComponent(Graphics g) {
