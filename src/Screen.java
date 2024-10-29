@@ -35,15 +35,13 @@ public class Screen extends JPanel{
             y1 = (int) triangle[1][1];
             x2 = (int) triangle[2][0];
             y2 = (int) triangle[2][1];
-            int[] triangleColor = t.color;
-            g.setColor(new Color(triangleColor[0], triangleColor[1], triangleColor[2]));
 
             //g.fillPolygon(new int[]{x0, x1, x2},new int[]{y0, y1, y2},3);
 
             TexturedTriangle(
                     (int) t.p[0][0], (int) t.p[0][1], t.t[0][0], t.t[0][1], t.t[0][2],
                     (int) t.p[1][0], (int) t.p[1][1], t.t[1][0], t.t[1][1], t.t[1][2],
-                    (int) t.p[2][0], (int) t.p[2][1], t.t[2][0], t.t[2][1], t.t[2][2],  g,t.texture );
+                    (int) t.p[2][0], (int) t.p[2][1], t.t[2][0], t.t[2][1], t.t[2][2],  g,t.texture, t.lum );
 
             g.setColor(Color.RED);
             if(drawLines){
@@ -59,10 +57,13 @@ public class Screen extends JPanel{
     public void TexturedTriangle(int x1, int y1, float u1, float v1, float w1,
                                  int x2, int y2, float u2, float v2, float w2,
                                  int x3, int y3, float u3, float v3, float w3,
-                                 Graphics g, Texture texture){
+                                 Graphics g, Texture texture, float lum){
+
+        int cR, cG, cB, color;
 
         int tempI;
         float tempF;
+
 
         if (y2 < y1){
             //swap y1, y2
@@ -131,19 +132,21 @@ public class Screen extends JPanel{
         if (dy2 != 0) dw2_step = dw2 / (float)Math.abs(dy2);
 
         float tex_u, tex_v, tex_w;
+        float tex_su, tex_sv, tex_sw;
+        float tex_eu, tex_ev, tex_ew;
 
         if (dy1 != 0){
             for (int i = y1; i <= y2; i++){
                 int ax = (int)(x1 + (i - y1) * dax_step);
                 int bx = (int)(x1 + (i - y1) * dbx_step);
 
-                float tex_su = u1 + (i - y1) * du1_step;
-                float tex_sv = v1 + (i - y1) * dv1_step;
-                float tex_sw = w1 + (i - y1) * dw1_step;
+                tex_su = u1 + (i - y1) * du1_step;
+                tex_sv = v1 + (i - y1) * dv1_step;
+                tex_sw = w1 + (i - y1) * dw1_step;
 
-                float tex_eu = u1 + (i - y1) * du2_step;
-                float tex_ev = v1 + (i - y1) * dv2_step;
-                float tex_ew = w1 + (i - y1) * dw2_step;
+                tex_eu = u1 + (i - y1) * du2_step;
+                tex_ev = v1 + (i - y1) * dv2_step;
+                tex_ew = w1 + (i - y1) * dw2_step;
 
                 if (ax > bx){
                     //swap ax bx
@@ -168,8 +171,11 @@ public class Screen extends JPanel{
                     tex_v = (1.0f - t) * tex_sv + t * tex_ev;
                     tex_w = (1.0f - t) * tex_sw + t * tex_ew;
 
-                    int color = texture.getPixel(tex_u/tex_w, tex_v/tex_w);
-                    g.setColor(new Color(color));
+                    color = texture.getPixel(tex_u/tex_w, tex_v/tex_w);
+                    cR = (color >> 16) & 0xFF;
+                    cG = (color >> 8) & 0xFF;
+                    cB = color & 0xFF;
+                    g.setColor(new Color((int)(cR*lum), (int)(cG*lum), (int)(cB*lum)));
                     g.fillRect(j, i, 1, 1);
 
                     t += tstep;
@@ -198,13 +204,12 @@ public class Screen extends JPanel{
                 int ax = (int) (x2 + (float)(i - y2) * dax_step);
                 int bx = (int) (x1 + (float)(i - y1) * dbx_step);
 
-                float tex_su = u2 + (float)(i - y2) * du1_step;
-                float tex_sv = v2 + (float)(i - y2) * dv1_step;
-                float tex_sw = w2 + (float)(i - y2) * dw1_step;
-
-                float tex_eu = u1 + (float)(i - y1) * du2_step;
-                float tex_ev = v1 + (float)(i - y1) * dv2_step;
-                float tex_ew = w1 + (float)(i - y1) * dw2_step;
+                tex_su = u2 + (float)(i - y2) * du1_step;
+                tex_sv = v2 + (float)(i - y2) * dv1_step;
+                tex_sw = w2 + (float)(i - y2) * dw1_step;
+                tex_eu = u1 + (float)(i - y1) * du2_step;
+                tex_ev = v1 + (float)(i - y1) * dv2_step;
+                tex_ew = w1 + (float)(i - y1) * dw2_step;
 
                 if (ax > bx) {
                     //swap ax bx
@@ -236,8 +241,11 @@ public class Screen extends JPanel{
                     tex_u = (1.0f - t) * tex_su + t * tex_eu;
                     tex_v = (1.0f - t) * tex_sv + t * tex_ev;
                     tex_w = (1.0f - t) * tex_sw + t * tex_ew;
-                    int color = texture.getPixel(tex_u/tex_w, tex_v/tex_w);
-                    g.setColor(new Color(color));
+                    color = texture.getPixel(tex_u/tex_w, tex_v/tex_w);
+                    cR = (color >> 16) & 0xFF;
+                    cG = (color >> 8) & 0xFF;
+                    cB = color & 0xFF;
+                    g.setColor(new Color((int)(cR*lum), (int)(cG*lum), (int)(cB*lum)));
                     if (j >= 0 && i >= 0 && j < getWidth() && i < getHeight()){
                         g.fillRect(j, i, 1, 1);
                     }

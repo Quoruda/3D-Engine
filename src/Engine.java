@@ -21,13 +21,13 @@ public class Engine{
 
     public static class TriangleMesh{
         public float[][] p;
-        public int[] color;
+        public float lum;
         public float[][] t;
         public Texture texture;
 
         public TriangleMesh(float[][] p, float lum, float[][] t, Texture texture){
             this.p = p;
-            this.color = getColour(lum);
+            this.lum = lum;
             this.t = t;
             this.texture = texture;
         }
