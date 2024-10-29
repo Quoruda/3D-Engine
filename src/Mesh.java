@@ -63,6 +63,19 @@ public class Mesh {
         this.positionZ = positionZ;
         position_changed = true;
     }
+
+    public float getPositionX(){
+        return positionX;
+    }
+
+    public float getPositionY(){
+        return positionY;
+    }
+
+    public float getPositionZ(){
+        return positionZ;
+    }
+
     public void setPosition(float positionX, float positionY, float positionZ){
         this.positionX = positionX;
         this.positionY = positionY;
