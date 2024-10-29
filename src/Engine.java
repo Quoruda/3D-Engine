@@ -45,8 +45,9 @@ public class Engine{
     }
 
     public void mainLoop(){
+        String title = "Engine";
         Screen screen = new Screen(this);
-        JFrame frame = new JFrame("Engine");
+        JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, height);
         frame.add(screen);
@@ -66,6 +67,7 @@ public class Engine{
         Timer timerRender = new Timer(1000/30, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                frame.setTitle(String.valueOf(title +" fps: "+ ((int)((1/deltaTime)*100))/100f ));
                 update(screen, keyPressedListener);
             }
         });
@@ -86,7 +88,7 @@ public class Engine{
         ArrayList<TriangleMesh> trianglesToRaster = new ArrayList<>();
         Scene mainScene = scene;
         if(mainScene != null){
-            mainScene.update(deltaTime);
+            mainScene.update(deltaTime, keyPressedListener.keys);
             Camera camera = mainScene.getCamera();
             ArrayList<Mesh> meshes = mainScene.getMeshes();
             if (camera != null){
@@ -100,16 +102,16 @@ public class Engine{
 
     public void moveCamera(Camera camera,KeyPressedListener keyPressedListener){
         if(keyPressedListener.keys[KeyEvent.VK_UP]) {
-            camera.vCamera[1] += 8*deltaTime;
+            camera.translateY(8*deltaTime);
         }
         if(keyPressedListener.keys[KeyEvent.VK_DOWN]) {
-            camera.vCamera[1] -= 8*deltaTime;
+            camera.translateY(-8*deltaTime);
         }
         if(keyPressedListener.keys[KeyEvent.VK_LEFT]) {
-            camera.vCamera[0] -= 8*deltaTime;
+            camera.translateX(-8*deltaTime);
         }
         if(keyPressedListener.keys[KeyEvent.VK_RIGHT]) {
-            camera.vCamera[0] += 8*deltaTime;
+            camera.translateX(8*deltaTime);
         }
 
         float[] vForward = Geometry.VectorMultiply(camera.vLookDir, 8*deltaTime);
@@ -143,14 +145,13 @@ public class Engine{
 
         ArrayList<TriangleMesh> trianglesToRaster = new ArrayList<>();
 
-        float[] light_direction = new float[]{0,1,-1,1};
+        float[] light_direction = new float[]{0,1,1,1};
         light_direction = Geometry.vector_normalise(light_direction);
 
         float[] vOffsetView = new float[]{1,1,0,1};
         float[][] triViewed, triProjected, triTransformed;
         float[] vCameraRay, normal;
         float dp;
-        float clipped_distance;
         ArrayList<float[][]> clipped;
         ArrayList<Triangle> clippedTriangles = new ArrayList<>();
         Triangle tempTriangle = new Triangle();
@@ -167,11 +168,10 @@ public class Engine{
                     dp = Math.max(0.1f, Geometry.VectorDotProduct(light_direction, normal));
                     triViewed =  Geometry.matrix_multiplyTriangle(matView, triTransformed);
 
-                    clipped_distance = 0.1f;
                     tempTriangle.p = triViewed;
                     tempTriangle.t = Geometry.copyTriangle(mesh.getT(iTri));
                     //tempTriangle.t = mesh.getT(iTri);
-                    clippedTriangles = Geometry.Triangle_ClipAgainstPlane(new float[]{0,0,clipped_distance,1}, new float[]{0,0,1,1}, tempTriangle);
+                    clippedTriangles = Geometry.Triangle_ClipAgainstPlane(new float[]{0,0,camera.clipped_distance,1}, new float[]{0,0,1,1}, tempTriangle);
 
                     for (Triangle triangle : clippedTriangles) {
                         tri = triangle.p;

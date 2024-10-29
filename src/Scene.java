@@ -32,7 +32,7 @@ public class Scene {
         return meshes;
     }
 
-    public void update(float deltaTime){
+    public void update(float deltaTime, boolean[] keys){
     }
 
 
