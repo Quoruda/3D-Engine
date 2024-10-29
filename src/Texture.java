@@ -18,6 +18,12 @@ public class Texture {
         return pixels[Math.floorMod((int)(u * width) + (int)(v * height) * width, pixels.length)];
     }
 
+    public static Texture getUniformColor(int color){
+        Texture texture = new Texture();
+        texture.pixels[0] = color;
+        return texture;
+    }
+
     public static Texture getGrid(int width, int height, int l, int color1, int color2) {
         Texture texture = new Texture();
         int[] pixels = new int[width*height];
