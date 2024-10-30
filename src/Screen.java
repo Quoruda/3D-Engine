@@ -26,7 +26,6 @@ public class Screen extends JPanel{
         int y1;
         int x2;
         int y2;
-
         for( Engine.TriangleMesh t : trianglesToRaster){
             float[][] triangle = t.p;
             x0 = (int) triangle[0][0];
@@ -36,14 +35,12 @@ public class Screen extends JPanel{
             x2 = (int) triangle[2][0];
             y2 = (int) triangle[2][1];
 
-            //g.fillPolygon(new int[]{x0, x1, x2},new int[]{y0, y1, y2},3);
-
             TexturedTriangle(
                     (int) t.p[0][0], (int) t.p[0][1], t.t[0][0], t.t[0][1], t.t[0][2],
                     (int) t.p[1][0], (int) t.p[1][1], t.t[1][0], t.t[1][1], t.t[1][2],
                     (int) t.p[2][0], (int) t.p[2][1], t.t[2][0], t.t[2][1], t.t[2][2],  g,t.texture, t.lum );
 
-            g.setColor(Color.BLACK);
+            g.setColor(Color.GRAY);
             if(drawLines){
                 g.drawPolyline(new int[]{x0, x1, x2}, new int[]{y0, y1, y2}, 3);
                 //g.drawLine(x0, y0, x1, y1);
@@ -135,13 +132,16 @@ public class Screen extends JPanel{
         float tex_u, tex_v, tex_w;
         float tex_su, tex_sv, tex_sw;
         float tex_eu, tex_ev, tex_ew;
+        int ax, bx;
+
+        float tstep, t;
 
         if (dy1 != 0){
             if(y1 < 0) y1 = 0;
             if(y2 > getHeight()-1) y2 = getHeight()-1;
             for (int i = y1; i <= y2; i++){
-                int ax = (int)(x1 + (i - y1) * dax_step);
-                int bx = (int)(x1 + (i - y1) * dbx_step);
+                ax = (int)(x1 + (i - y1) * dax_step);
+                bx = (int)(x1 + (i - y1) * dbx_step);
 
                 tex_su = u1 + (i - y1) * du1_step;
                 tex_sv = v1 + (i - y1) * dv1_step;
@@ -166,8 +166,8 @@ public class Screen extends JPanel{
                 //tex_v = tex_sv;
                 //tex_w = tex_sw;
 
-                float tstep = 1.0f / (float)(bx - ax);
-                float t = 0.0f;
+                tstep = 1.0f / (float)(bx - ax);
+                t = 0.0f;
                 if(ax < 0) ax = 0;
                 if(bx > getWidth()-1) bx = getWidth()-1;
                 for (int j = ax; j < bx; j++){
@@ -187,7 +187,6 @@ public class Screen extends JPanel{
                     t += tstep;
                 }
             }
-
         }
 
         dy1 = y3 - y2;
@@ -206,9 +205,11 @@ public class Screen extends JPanel{
         if (dy1 != 0) dw1_step = dw1 / (float)Math.abs(dy1);
 
         if (dy1 != 0){
+            if(y2 < 0) y2 = 0;
+            if(y3 > getHeight()-1) y3 = getHeight()-1;
             for (int i = y2; i <= y3; i++) {
-                int ax = (int) (x2 + (float)(i - y2) * dax_step);
-                int bx = (int) (x1 + (float)(i - y1) * dbx_step);
+                ax = (int) (x2 + (float)(i - y2) * dax_step);
+                bx = (int) (x1 + (float)(i - y1) * dbx_step);
 
                 tex_su = u2 + (float)(i - y2) * du1_step;
                 tex_sv = v2 + (float)(i - y2) * dv1_step;
@@ -240,20 +241,24 @@ public class Screen extends JPanel{
                 tex_v = tex_sv;
                 tex_w = tex_sw;
 
-                float tstep = 1.0f / (bx - ax);
-                float t = 0.0f;
-
+                tstep = 1.0f / (bx - ax);
+                t = 0.0f;
+                if(ax < 0) ax = 0;
+                if(bx > getWidth()-1) bx = getWidth()-1;
                 for (int j = ax; j < bx; j++) {
                     tex_u = (1.0f - t) * tex_su + t * tex_eu;
                     tex_v = (1.0f - t) * tex_sv + t * tex_ev;
                     tex_w = (1.0f - t) * tex_sw + t * tex_ew;
-                    color = texture.getPixel(tex_u/tex_w, tex_v/tex_w);
-                    cR = (color >> 16) & 0xFF;
-                    cG = (color >> 8) & 0xFF;
-                    cB = color & 0xFF;
-                    g.setColor(new Color((int)(cR*lum), (int)(cG*lum), (int)(cB*lum)));
-                    if (j >= 0 && i >= 0 && j < getWidth() && i < getHeight()){
-                        g.fillRect(j, i, 1, 1);
+                    if(tex_w > pDepthBuffer[i*getWidth()+j]) {
+                        color = texture.getPixel(tex_u / tex_w, tex_v / tex_w);
+                        cR = (color >> 16) & 0xFF;
+                        cG = (color >> 8) & 0xFF;
+                        cB = color & 0xFF;
+                        g.setColor(new Color((int) (cR * lum), (int) (cG * lum), (int) (cB * lum)));
+                        if (j >= 0 && i >= 0 && j < getWidth() && i < getHeight()) {
+                            g.fillRect(j, i, 1, 1);
+                        }
+                        pDepthBuffer[i * getWidth() + j] = tex_w;
                     }
 
                     t += tstep;
