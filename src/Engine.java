@@ -14,11 +14,6 @@ public class Engine{
     int maxNbTriangleToRender;
     Scene scene;
 
-    public static int[] getColour(float lum){
-        int pixel = (int)(lum*255);
-        return new int[] {pixel, pixel, pixel} ;
-    }
-
     public static class TriangleMesh{
         public float[][] p;
         public float lum;
@@ -31,7 +26,6 @@ public class Engine{
             this.t = t;
             this.texture = texture;
         }
-
     }
 
     public Engine(){
@@ -64,7 +58,7 @@ public class Engine{
         });
         timerScreen.start();
 
-        Timer timerRender = new Timer(1000/30, new ActionListener() {
+        Timer timerRender = new Timer(1000/60, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.setTitle(String.valueOf(title +" fps: "+ ((int)((1/deltaTime)*100))/100f ));
