@@ -162,19 +162,21 @@ public class Screen extends JPanel{
                     tempF = tex_sw;tex_sw = tex_ew;tex_ew = tempF;
                 }
 
-                //tex_u = tex_su;
-                //tex_v = tex_sv;
-                //tex_w = tex_sw;
+                tex_u = tex_su;
+                tex_v = tex_sv;
+                tex_w = tex_sw;
 
                 tstep = 1.0f / (float)(bx - ax);
                 t = 0.0f;
-                if(ax < 0) ax = 0;
                 if(bx > getWidth()-1) bx = getWidth()-1;
+                if(ax < 0){
+                    t += tstep*ax*-1;
+                    ax = 0;
+                }
                 for (int j = ax; j < bx; j++){
                     tex_u = (1.0f - t) * tex_su + t * tex_eu;
                     tex_v = (1.0f - t) * tex_sv + t * tex_ev;
                     tex_w = (1.0f - t) * tex_sw + t * tex_ew;
-
                     if(tex_w > pDepthBuffer[i*getWidth()+j]) {
                         color = texture.getPixel(tex_u / tex_w, tex_v / tex_w);
                         cR = (color >> 16) & 0xFF;
@@ -243,8 +245,11 @@ public class Screen extends JPanel{
 
                 tstep = 1.0f / (bx - ax);
                 t = 0.0f;
-                if(ax < 0) ax = 0;
                 if(bx > getWidth()-1) bx = getWidth()-1;
+                if(ax < 0){
+                    t += tstep*ax*-1;
+                    ax = 0;
+                }
                 for (int j = ax; j < bx; j++) {
                     tex_u = (1.0f - t) * tex_su + t * tex_eu;
                     tex_v = (1.0f - t) * tex_sv + t * tex_ev;
@@ -260,7 +265,6 @@ public class Screen extends JPanel{
                         }
                         pDepthBuffer[i * getWidth() + j] = tex_w;
                     }
-
                     t += tstep;
                 }
 
