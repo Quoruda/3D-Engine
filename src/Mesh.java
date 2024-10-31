@@ -49,6 +49,9 @@ public class Mesh {
         rotationZ = 0;
         scale = 1;
         texture = new Texture();
+        position_changed = true;
+        rotation_changed = true;
+        scale_changed = true;
     }
 
     public void setPositionX(float positionX){
@@ -130,11 +133,7 @@ public class Mesh {
                 if (tokens[0].equals("f")) {
                     if(!hasTexture) {
                         int[] face = new int[tokens.length - 1];
-                        if (face.length == 3) {
-                            n += 1;
-                        } else if (face.length == 4) {
-                            n += 2;
-                        }
+                        n += tokens.length - 2;
                         for (int i = 1; i < tokens.length; i++) {
                             face[i - 1] = Integer.parseInt(tokens[i]);
                         }
@@ -213,11 +212,11 @@ public class Mesh {
                     vtexs.add(new float[]{u, v, 1.0f});
                 }
                 for(int[] face: faces){
-                    if(face.length == 3){
-                        ftexs.add(new int[]{face[0], face[1], face[2]});
-                    }else{
-                        ftexs.add(new int[]{face[0], face[1], face[2], face[3]});
+                    int[] ftex = new int[face.length];
+                    for(int i=0; i<face.length; i++){
+                        ftex[i] = face[i];
                     }
+                    ftexs.add(ftex);
                 }
             }
 
@@ -234,17 +233,14 @@ public class Mesh {
             mesh.triangles = new int[n][3];
             mesh.tList = new int[n][3];
 
-            int i = 0;
+            int iTriangle = 0;
             for (int j = 0; j < faces.size(); j++) {
                 int[] face = faces.get(j);
                 int[] ftex = ftexs.get(j);
-                mesh.triangles[i] = new int[]{face[0] - 1, face[1]-1, face[2]-1};
-                mesh.tList[i] = new int[]{ftex[0] - 1, ftex[1]-1, ftex[2]-1};
-                i++;
-                if (face.length == 4 ) {
-                    mesh.triangles[i] = new int[]{ face[2]-1, face[3]-1,face[0]-1};
-                    mesh.tList[i] = new int[]{ftex[2] - 1, ftex[3]-1, ftex[0]-1};
-                    i++;
+                for(int i=0; i< face.length-2; i++){
+                    mesh.triangles[iTriangle] = new int[]{face[0] - 1, face[i+1]-1, face[i+2]-1};
+                    mesh.tList[iTriangle] = new int[]{ftex[0] - 1, ftex[i+1]-1, ftex[i+2]-1};
+                    iTriangle++;
                 }
             }
 
@@ -259,6 +255,7 @@ public class Mesh {
 
         mesh.position_changed = true;
         mesh.rotation_changed = true;
+        mesh.scale_changed = true;
 
         return mesh;
     }
@@ -272,7 +269,10 @@ public class Mesh {
         updateTexture();
 
         if(!(position_changed || rotation_changed || scale_changed)) return;
-        //System.out.println(true);
+        position_changed = false;
+        rotation_changed = false;
+        scale_changed = false;
+
 
         float[][] matTrans = Geometry.getMatrixTranslation(positionX, positionY, positionZ);
 
@@ -309,10 +309,6 @@ public class Mesh {
             normal = Geometry.vector_normalise(normal);
             normals[i] = normal;
         }
-
-        position_changed = false;
-        rotation_changed = false;
-
     }
 
     private void updateTexture(){
