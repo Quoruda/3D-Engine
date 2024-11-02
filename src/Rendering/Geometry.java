@@ -1,3 +1,5 @@
+package Rendering;
+
 import java.lang.Math;
 import java.util.ArrayList;
 
@@ -242,25 +244,25 @@ public class Geometry {
         float d2 = distancePlan(plane_n,plane_p ,in_tri.p[2]);
 
         if (d0 >= 0) {
-            inside_points[nInsidePointCount++] = in_tri.p[0];
-            inside_tex[nInsideTexCount++] = in_tri.t[0];
+            inside_points[nInsidePointCount++] = Geometry.copyVector(in_tri.p[0]);
+            inside_tex[nInsideTexCount++] = Geometry.copyVector(in_tri.t[0]);
         } else {
-            outside_points[nOutsidePointCount++] = in_tri.p[0];
-            outside_tex[nOutsideTexCount++] = in_tri.t[0];
+            outside_points[nOutsidePointCount++] = Geometry.copyVector( in_tri.p[0]);
+            outside_tex[nOutsideTexCount++] = Geometry.copyVector(in_tri.t[0]);
         }
         if (d1 >= 0) {
-            inside_points[nInsidePointCount++] = in_tri.p[1];
-            inside_tex[nInsideTexCount++] = in_tri.t[1];
+            inside_points[nInsidePointCount++] = Geometry.copyVector(in_tri.p[1]);
+            inside_tex[nInsideTexCount++] = Geometry.copyVector(in_tri.t[1]);
         } else {
-            outside_points[nOutsidePointCount++] = in_tri.p[1];
-            outside_tex[nOutsideTexCount++] = in_tri.t[1];
+            outside_points[nOutsidePointCount++] = Geometry.copyVector(in_tri.p[1]);
+            outside_tex[nOutsideTexCount++] = Geometry.copyVector(in_tri.t[1]);
         }
         if (d2 >= 0) {
-            inside_points[nInsidePointCount++] = in_tri.p[2];
-            inside_tex[nInsideTexCount++] = in_tri.t[2];
+            inside_points[nInsidePointCount++] = Geometry.copyVector(in_tri.p[2]);
+            inside_tex[nInsideTexCount++] = Geometry.copyVector(in_tri.t[2]);
         } else {
-            outside_points[nOutsidePointCount++] = in_tri.p[2];
-            outside_tex[nOutsideTexCount++] = in_tri.t[2];
+            outside_points[nOutsidePointCount++] = Geometry.copyVector(in_tri.p[2]);
+            outside_tex[nOutsideTexCount++] = Geometry.copyVector(in_tri.t[2]);
         }
 
         ArrayList<Triangle> out_triangles = new ArrayList<>();
@@ -275,10 +277,8 @@ public class Geometry {
         }
         else if (nInsidePointCount == 1 && nOutsidePointCount == 2) {
 
-            out_tri1 = new Triangle();
-
             out_tri1.p[0] = inside_points[0];
-            out_tri1.t[0] = inside_tex[0];
+            out_tri1.t[0] = Geometry.copyVector(inside_tex[0]);
 
             MutableValue<Float> t = new MutableValue<>();
             out_tri1.p[1] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0], t);
@@ -297,8 +297,8 @@ public class Geometry {
             out_tri1.p = new float[3][4];
             out_tri1.p[0] = inside_points[0];
             out_tri1.p[1] = inside_points[1];
-            out_tri1.t[0] = inside_tex[0];
-            out_tri1.t[1] = inside_tex[1];
+            out_tri1.t[0] = Geometry.copyVector(inside_tex[0]);
+            out_tri1.t[1] = Geometry.copyVector(inside_tex[1]);
 
             MutableValue<Float> t = new MutableValue<>();
             out_tri1.p[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0],t);
@@ -309,15 +309,16 @@ public class Geometry {
 
             out_tri2.p = new float[3][4];
             out_tri2.p[0] = inside_points[1];
-            out_tri2.t[0] = inside_tex[1];
+            out_tri2.t[0] = Geometry.copyVector(inside_tex[1]);
             out_tri2.p[1] = out_tri1.p[2];
-            out_tri2.t[1] = out_tri1.t[2];
+            out_tri2.t[1] = Geometry.copyVector( out_tri1.t[2]);
             out_tri2.p[2] = Vector_IntersectPlane(plane_p, plane_n, inside_points[1], outside_points[0], t);
             out_tri2.t[2][0] = t.v * (outside_tex[0][0] - inside_tex[1][0]) + inside_tex[1][0];
             out_tri2.t[2][1] = t.v * (outside_tex[0][1] - inside_tex[1][1]) + inside_tex[1][1];
             out_tri2.t[2][2] = t.v * (outside_tex[0][2] - inside_tex[1][2]) + inside_tex[1][2];
 
             out_triangles.add(out_tri2);
+            //System.out.println(out_tri1.t[1] + ", " + out_tri2.t[0]);
 
         }else{
             System.out.println("Bizarre: "+nInsidePointCount + " " + nOutsidePointCount);
@@ -334,6 +335,14 @@ public class Geometry {
             for(int j = 0; j < t[i].length; j++){
                 copy[i][j] = t[i][j];
             }
+        }
+        return copy;
+    }
+
+    public static float[] copyVector(float[] v){
+        float[] copy = new float[v.length];
+        for(int i = 0; i < v.length; i++){
+            copy[i] = v[i];
         }
         return copy;
     }

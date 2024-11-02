@@ -1,37 +1,23 @@
+package Rendering;
+
 import javax.swing.*;
-import javax.swing.Timer;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.*;
 import java.awt.event.KeyEvent;
+import Objects.*;
+import Display.*;
+import Inputs.*;
 
 
 public class Engine{
 
     private float deltaTime = 1;
-    private float lastTime;
-    int width,height;
-    int maxNbTriangleToRender;
+    private long lastTime;
     Scene scene;
+    Display display;
 
-    public static class TriangleMesh{
-        public float[][] p;
-        public float lum;
-        public float[][] t;
-        public Texture texture;
-
-        public TriangleMesh(float[][] p, float lum, float[][] t, Texture texture){
-            this.p = p;
-            this.lum = lum;
-            this.t = t;
-            this.texture = texture;
-        }
-    }
-
-    public Engine(){
-        width = 700;
-        height = 600;
+    public Engine(Display display){
         lastTime = System.nanoTime();
+        this.display = display;
     }
 
     public void setScene(Scene scene){
@@ -39,87 +25,67 @@ public class Engine{
     }
 
     public void mainLoop(){
-        String title = "Engine";
-        Screen screen = new Screen(this);
-        JFrame frame = new JFrame(title);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(width, height);
-        frame.add(screen);
-        frame.setVisible(true);
-        frame.setFocusable(true);
-        frame.requestFocusInWindow();
-        KeyPressedListener keyPressedListener = new KeyPressedListener(this);
-        frame.addKeyListener(keyPressedListener);
-        Timer timerScreen = new Timer(1000/30, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.repaint();
-            }
-        });
-        timerScreen.start();
-
-        Timer timerRender = new Timer(1000/60, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.setTitle(String.valueOf(title +" fps: "+ ((int)((1/deltaTime)*100))/100f ));
-                update(screen, keyPressedListener);
-            }
-        });
-        timerRender.start();
+        int fps;
+        while(true){
+            fps = Math.round(1f/deltaTime);
+            //frame.setTitle(title +" fps: "+ fps);
+            update();
+            display.update();
+        }
     }
 
     private void calculateDeltaTime(){
-        float nanoTime = System.nanoTime();
+        long nanoTime = System.nanoTime();
         deltaTime = (nanoTime - lastTime) / 1000000000.0f;
         lastTime = nanoTime;
     }
 
 
-    public void update(Screen screen, KeyPressedListener keyPressedListener){
+    public void update(){
 
         calculateDeltaTime();
 
-        ArrayList<TriangleMesh> trianglesToRaster = new ArrayList<>();
+        ArrayList<Triangle> trianglesToRaster = new ArrayList<>();
         Scene mainScene = scene;
         if(mainScene != null){
-            mainScene.update(deltaTime, keyPressedListener.keys);
+            mainScene.update(deltaTime, new boolean[256]);
             Camera camera = mainScene.getCamera();
             ArrayList<Mesh> meshes = mainScene.getMeshes();
             if (camera != null){
-                moveCamera(camera, keyPressedListener);
-                trianglesToRaster = render(screen, camera, meshes);
+                moveCamera(camera, new boolean[256]);
+                trianglesToRaster = render(camera, meshes);
             }
 
         }
-        screen.TrianglesToRaster = trianglesToRaster;
+        display.TrianglesToRaster = trianglesToRaster;
     }
 
-    public void moveCamera(Camera camera,KeyPressedListener keyPressedListener){
-        if(keyPressedListener.keys[KeyEvent.VK_UP]) {
+    public void moveCamera(Camera camera, boolean[] keys){
+        if(keys[KeyEvent.VK_UP]) {
             camera.translateY(8*deltaTime);
         }
-        if(keyPressedListener.keys[KeyEvent.VK_DOWN]) {
+        if(keys[KeyEvent.VK_DOWN]) {
             camera.translateY(-8*deltaTime);
         }
-        if(keyPressedListener.keys[KeyEvent.VK_LEFT]) {
+        if(keys[KeyEvent.VK_LEFT]) {
             camera.translateX(-8*deltaTime);
         }
-        if(keyPressedListener.keys[KeyEvent.VK_RIGHT]) {
+        if(keys[KeyEvent.VK_RIGHT]) {
             camera.translateX(8*deltaTime);
         }
 
         float[] vForward = Geometry.VectorMultiply(camera.vLookDir, 8*deltaTime);
 
-        if(keyPressedListener.keys[KeyEvent.VK_Z]) {
+        if(keys[KeyEvent.VK_Z]) {
             camera.vCamera = Geometry.VectorAddition(camera.vCamera, vForward);
         }
-        if(keyPressedListener.keys[KeyEvent.VK_S]) {
+        if(keys[KeyEvent.VK_S]) {
             camera.vCamera = Geometry.VectorSubstraction(camera.vCamera, vForward);
         }
-        if(keyPressedListener.keys[KeyEvent.VK_Q]) {
+        if(keys[KeyEvent.VK_Q]) {
             camera.fYaw -= 2*deltaTime;
         }
-        if(keyPressedListener.keys[KeyEvent.VK_D]) {
+        if(keys[KeyEvent.VK_D]) {
             camera.fYaw += 2*deltaTime;
         }
         float[] vTarget = new float[]{0,0,1,1};
@@ -127,17 +93,17 @@ public class Engine{
         camera.vLookDir = Geometry.matrix_multiplyVector(matCameraRot, vTarget);
     }
 
-    public ArrayList<TriangleMesh> render(Screen screen, Camera camera, ArrayList<Mesh> meshes){
+    public ArrayList<Triangle> render(Camera camera, ArrayList<Mesh> meshes){
         float[][] matProj, matView ;
-        height = screen.getHeight();
-        width = screen.getWidth();
+        int height = camera.resolution[1];
+        int width = camera.resolution[0];
         matProj = Geometry.matrix_makeProjection(90.0f,(float) height/ (float) width, 0.1f, 1000);
 
         float[][] matCamera = camera.getMatCamera();
 
         matView = Geometry.Matrix_QuickInverse(matCamera);
 
-        ArrayList<TriangleMesh> trianglesToRaster = new ArrayList<>();
+        ArrayList<Triangle> trianglesToRaster = new ArrayList<>();
 
         float[] light_direction = new float[]{0,1,1,1};
         light_direction = Geometry.vector_normalise(light_direction);
@@ -204,7 +170,7 @@ public class Engine{
                         triProjected[2][0] *= 0.5f*width;
                         triProjected[2][1] *= 0.5f*height;
 
-                        trianglesToRaster.add(new TriangleMesh(triProjected, dp, t, mesh.getTexture()));
+                        trianglesToRaster.add(new Triangle(triProjected, dp, t, mesh.getTexture()));
                     }
                 }else{
                     //System.out.println();
@@ -213,16 +179,20 @@ public class Engine{
             }
         }
 
-        Collections.sort(trianglesToRaster, new Comparator<TriangleMesh>() {
+        /*
+        Collections.sort(trianglesToRaster, new Comparator<Triangle>() {
             public Float calculDistance(float[][] t ) {
                 return (t[0][2]+t[1][2]+t[2][2])/3.0f;
             }
 
             @Override
-            public int compare(TriangleMesh t1, TriangleMesh t2) {
+            public int compare(Triangle t1, Triangle t2) {
                 return calculDistance(t2.p).compareTo(calculDistance(t1.p));
             }
         });
+
+         */
+
         //Collections.reverse(trianglesToRaster);
 
         return trianglesToRaster;

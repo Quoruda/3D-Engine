@@ -1,9 +1,14 @@
+package Objects;
+
+import Rendering.Geometry;
+
 public class Camera {
 
 
     public float[] vCamera, vLookDir;
-    float fYaw;
-    float clipped_distance;
+    public float fYaw;
+    public float clipped_distance;
+    public int[] resolution;
 
 
     public Camera(){
@@ -11,6 +16,7 @@ public class Camera {
         vLookDir = new float[]{0,0,0,1};
         fYaw = 0;
         clipped_distance = 0.1f;
+        resolution = new int[]{700, 600};
     }
 
     public void setPosition(float x, float y, float z){

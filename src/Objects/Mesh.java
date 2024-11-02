@@ -1,3 +1,7 @@
+package Objects;
+
+import Rendering.Geometry;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -273,6 +277,9 @@ public class Mesh {
         rotation_changed = false;
         scale_changed = false;
 
+        transformedVertices = new float[vertices.length][4];
+        transformedTriangles = new float[triangles.length][3][4];
+        normals = new float[triangles.length][];
 
         float[][] matTrans = Geometry.getMatrixTranslation(positionX, positionY, positionZ);
 
@@ -312,6 +319,7 @@ public class Mesh {
     }
 
     private void updateTexture(){
+        tListTransformed = new float[tList.length][3][3];
         int i;
 
         for (i = 0; i < tList.length; i++) {

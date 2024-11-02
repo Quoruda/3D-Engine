@@ -1,48 +1,86 @@
+package Display;
+
+import Inputs.KeyPressedListener;
+import Objects.Texture;
+import Rendering.Engine;
+import Rendering.Triangle;
+
+
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-public class Screen extends JPanel{
-    public ArrayList<Engine.TriangleMesh> TrianglesToRaster;
-    public Engine engine;
-    public boolean drawLines = false;
-    private float[] pDepthBuffer;
+public class Screen extends Display{
 
-    public Screen(Engine engine) {
+    public JPanel jpanel;
+    public JFrame jframe;
+
+    public Screen() {
+        jpanel = new JPanel(){
+            @Override
+            public void paintComponent(Graphics g){
+                super.paintComponent(g);
+                paintTriangle(g);
+            }
+        };
+        jframe = new JFrame();
+
+        int width = 700;
+        int height = 600;
+        jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jframe.setSize(width, height);
+        jframe.add(jpanel);
+        jframe.setVisible(true);
+        jframe.setFocusable(true);
+        jframe.setResizable(false);
+        jframe.requestFocusInWindow();
         TrianglesToRaster = new ArrayList<>();
-        this.engine = engine;
-        this.setBackground(new Color(0x000000));
     }
 
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        pDepthBuffer = new float[getHeight()* getWidth()];
+    @Override
+    public void update() {
+        jpanel.repaint();
+    }
 
-        ArrayList<Engine.TriangleMesh> trianglesToRaster = TrianglesToRaster;
+    public void setPixel(int x, int y, int r, int g, int b){
+        frame.setRGB(x,y,(r << 16) | (g << 8) | b);
+    }
 
-        int x0;
-        int y0;
-        int x1;
-        int y1;
-        int x2;
-        int y2;
-        for( Engine.TriangleMesh t : trianglesToRaster){
-            float[][] triangle = t.p;
-            x0 = (int) triangle[0][0];
-            y0 = (int) triangle[0][1];
-            x1 = (int) triangle[1][0];
-            y1 = (int) triangle[1][1];
-            x2 = (int) triangle[2][0];
-            y2 = (int) triangle[2][1];
+    public void paintTriangle(Graphics g) {
 
+        int width = jpanel.getWidth();
+        int height = jpanel.getHeight();
+
+        pDepthBuffer = new float[height][width];
+        frame = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        ArrayList<Triangle> trianglesToRaster = TrianglesToRaster;
+
+        for( Triangle t : trianglesToRaster){
             TexturedTriangle(
                     (int) t.p[0][0], (int) t.p[0][1], t.t[0][0], t.t[0][1], t.t[0][2],
                     (int) t.p[1][0], (int) t.p[1][1], t.t[1][0], t.t[1][1], t.t[1][2],
-                    (int) t.p[2][0], (int) t.p[2][1], t.t[2][0], t.t[2][1], t.t[2][2],  g,t.texture, t.lum );
+                    (int) t.p[2][0], (int) t.p[2][1], t.t[2][0], t.t[2][1], t.t[2][2],
+                    t.texture, t.lum );
+        }
 
-            g.setColor(Color.GRAY);
-            if(drawLines){
+        g.drawImage(frame, 0,0, width, height, jpanel );
+
+        /*
+        if(drawLines){
+            g.setColor(Color.PINK);
+            for( Triangle t : trianglesToRaster) {
+                float[][] triangle = t.p;
+                x0 = (int) triangle[0][0];
+                y0 = (int) triangle[0][1];
+                x1 = (int) triangle[1][0];
+                y1 = (int) triangle[1][1];
+                x2 = (int) triangle[2][0];
+                y2 = (int) triangle[2][1];
                 g.drawPolyline(new int[]{x0, x1, x2}, new int[]{y0, y1, y2}, 3);
+
                 //g.drawLine(x0, y0, x1, y1);
                 //g.drawLine(x1, y1, x2, y2);
                 //g.drawLine(x2, y2, x0, y0);
@@ -50,12 +88,19 @@ public class Screen extends JPanel{
 
 
         }
+        */
     }
+
+
+
 
     public void TexturedTriangle(int x1, int y1, float u1, float v1, float w1,
                                  int x2, int y2, float u2, float v2, float w2,
                                  int x3, int y3, float u3, float v3, float w3,
-                                 Graphics g, Texture texture, float lum){
+                                 Texture texture, float lum){
+
+        int width = jpanel.getWidth();
+        int height = jpanel.getHeight();
 
         int cR, cG, cB, color;
 
@@ -137,9 +182,8 @@ public class Screen extends JPanel{
         float tstep, t;
 
         if (dy1 != 0){
-            if(y1 < 0) y1 = 0;
-            if(y2 > getHeight()-1) y2 = getHeight()-1;
-            for (int i = y1; i <= y2; i++){
+
+            for (int i = Math.max(y1,0); i <= Math.min(y2, height-1); i++){
                 ax = (int)(x1 + (i - y1) * dax_step);
                 bx = (int)(x1 + (i - y1) * dbx_step);
 
@@ -162,29 +206,25 @@ public class Screen extends JPanel{
                     tempF = tex_sw;tex_sw = tex_ew;tex_ew = tempF;
                 }
 
-                tex_u = tex_su;
-                tex_v = tex_sv;
-                tex_w = tex_sw;
-
                 tstep = 1.0f / (float)(bx - ax);
                 t = 0.0f;
-                if(bx > getWidth()-1) bx = getWidth()-1;
+                if(bx > width-1) bx = width-1;
                 if(ax < 0){
                     t += tstep*ax*-1;
                     ax = 0;
                 }
                 for (int j = ax; j < bx; j++){
-                    tex_u = (1.0f - t) * tex_su + t * tex_eu;
-                    tex_v = (1.0f - t) * tex_sv + t * tex_ev;
                     tex_w = (1.0f - t) * tex_sw + t * tex_ew;
-                    if(tex_w > pDepthBuffer[i*getWidth()+j]) {
+                    if(tex_w > pDepthBuffer[i][j]) {
+                        tex_u = (1.0f - t) * tex_su + t * tex_eu;
+                        tex_v = (1.0f - t) * tex_sv + t * tex_ev;
                         color = texture.getPixel(tex_u / tex_w, tex_v / tex_w);
                         cR = (color >> 16) & 0xFF;
                         cG = (color >> 8) & 0xFF;
                         cB = color & 0xFF;
-                        g.setColor(new Color((int) (cR * lum), (int) (cG * lum), (int) (cB * lum)));
-                        g.fillRect(j, i, 1, 1);
-                        pDepthBuffer[i * getWidth() + j] = tex_w;
+
+                        setPixel(j,i,(int) (cR*lum),(int) (cG*lum),(int) (cB*lum) );
+                        pDepthBuffer[i][j] = tex_w;
                     }
                     t += tstep;
                 }
@@ -207,9 +247,7 @@ public class Screen extends JPanel{
         if (dy1 != 0) dw1_step = dw1 / (float)Math.abs(dy1);
 
         if (dy1 != 0){
-            if(y2 < 0) y2 = 0;
-            if(y3 > getHeight()-1) y3 = getHeight()-1;
-            for (int i = y2; i <= y3; i++) {
+            for (int i = Math.max(y2,0); i < Math.min(y3, height); i++) {
                 ax = (int) (x2 + (float)(i - y2) * dax_step);
                 bx = (int) (x1 + (float)(i - y1) * dbx_step);
 
@@ -239,31 +277,24 @@ public class Screen extends JPanel{
                     tex_ew = tempF;
                 }
 
-                tex_u = tex_su;
-                tex_v = tex_sv;
-                tex_w = tex_sw;
-
-                tstep = 1.0f / (bx - ax);
+                tstep = 1.0f / (float)(bx - ax);
                 t = 0.0f;
-                if(bx > getWidth()-1) bx = getWidth()-1;
+                if(bx > width-1) bx = width-1;
                 if(ax < 0){
                     t += tstep*ax*-1;
                     ax = 0;
                 }
                 for (int j = ax; j < bx; j++) {
-                    tex_u = (1.0f - t) * tex_su + t * tex_eu;
-                    tex_v = (1.0f - t) * tex_sv + t * tex_ev;
                     tex_w = (1.0f - t) * tex_sw + t * tex_ew;
-                    if(tex_w > pDepthBuffer[i*getWidth()+j]) {
+                    if(tex_w > pDepthBuffer[i][j]) {
+                        tex_u = (1.0f - t) * tex_su + t * tex_eu;
+                        tex_v = (1.0f - t) * tex_sv + t * tex_ev;
                         color = texture.getPixel(tex_u / tex_w, tex_v / tex_w);
                         cR = (color >> 16) & 0xFF;
                         cG = (color >> 8) & 0xFF;
                         cB = color & 0xFF;
-                        g.setColor(new Color((int) (cR * lum), (int) (cG * lum), (int) (cB * lum)));
-                        if (j >= 0 && i >= 0 && j < getWidth() && i < getHeight()) {
-                            g.fillRect(j, i, 1, 1);
-                        }
-                        pDepthBuffer[i * getWidth() + j] = tex_w;
+                        setPixel(j,i,(int) (cR*lum),(int) (cG*lum),(int) (cB*lum) );
+                        pDepthBuffer[i][j] = tex_w;
                     }
                     t += tstep;
                 }

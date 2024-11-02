@@ -1,11 +1,14 @@
-import java.awt.event.KeyAdapter;
+package Inputs;
+
+import Rendering.Engine;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyPressedListener implements KeyListener {
 
     Engine engine;
-    boolean[] keys = new boolean[255];
+    public boolean[] keys = new boolean[255];
 
     public KeyPressedListener(Engine engine) {
         this.engine = engine;
