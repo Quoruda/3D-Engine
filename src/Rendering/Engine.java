@@ -49,15 +49,21 @@ public class Engine{
         Scene mainScene = scene;
         if(mainScene != null){
             mainScene.update(deltaTime);
-            Camera camera = mainScene.getCamera();
-            ArrayList<Mesh> meshes = mainScene.getMeshes();
-            if (camera != null){
-                camera.update();
-                trianglesToRaster = render(camera, meshes);
+            ArrayList<Camera> cameras = scene.getCameras();
+            if(!cameras.isEmpty()){
+                ArrayList<Mesh> meshes = mainScene.getMeshes();
+                for(Camera camera: cameras){
+                    if(camera.isActive()){
+                        trianglesToRaster = render(camera, meshes);
+                        camera.takePhoto(trianglesToRaster);
+                    }
+                }
             }
-
         }
-        display.TrianglesToRaster = trianglesToRaster;
+        Camera mainCamera = mainScene.getMainCamera();
+        if(mainCamera != null){
+            display.frame = mainCamera.getFrame();
+        }
     }
 
     /*
@@ -97,8 +103,8 @@ public class Engine{
 
     public ArrayList<Triangle> render(Camera camera, ArrayList<Mesh> meshes){
         float[][] matProj, matView ;
-        int height = camera.resolution[1];
-        int width = camera.resolution[0];
+        int height = camera.getHeight();
+        int width = camera.getWidth();
         matProj = Geometry.matrix_makeProjection(90.0f,(float) height/ (float) width, 0.1f, 1000);
 
         float[][] matCamera = camera.getMatCamera();
@@ -133,7 +139,7 @@ public class Engine{
                     tempTriangle.p = triViewed;
                     tempTriangle.t = Geometry.copyTriangle(mesh.getT(iTri));
                     //tempTriangle.t = mesh.getT(iTri);
-                    clippedTriangles = Geometry.Triangle_ClipAgainstPlane(new float[]{0,0,camera.clipped_distance,1}, new float[]{0,0,1,1}, tempTriangle);
+                    clippedTriangles = Geometry.Triangle_ClipAgainstPlane(new float[]{0,0,camera.getClipped_distance(),1}, new float[]{0,0,1,1}, tempTriangle);
 
                     for (Triangle triangle : clippedTriangles) {
                         tri = triangle.p;

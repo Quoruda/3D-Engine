@@ -1,6 +1,7 @@
 package Display;
 
 import Inputs.KeyMap;
+import Objects.Camera;
 import Rendering.Engine;
 import Rendering.Triangle;
 
@@ -9,9 +10,7 @@ import java.util.ArrayList;
 
 public abstract class Display {
 
-    public ArrayList<Triangle> TrianglesToRaster;
-    protected float[][] pDepthBuffer;
-    protected BufferedImage frame;
+    public BufferedImage frame;
     public KeyMap keyMap;
 
     public Engine engine;
