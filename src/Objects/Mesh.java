@@ -33,7 +33,9 @@ public class Mesh {
     public boolean rotation_changed;
     public boolean scale_changed;
 
-    private float scale;
+    private float scaleX;
+    private float scaleY;
+    private float scaleZ;
 
     private Texture texture;
 
@@ -51,7 +53,9 @@ public class Mesh {
         rotationX = 0;
         rotationY = 0;
         rotationZ = 0;
-        scale = 1;
+        scaleX = 1;
+        scaleY = 1;
+        scaleZ = 1;
         texture = new Texture();
         position_changed = true;
         rotation_changed = true;
@@ -103,6 +107,10 @@ public class Mesh {
     public void setRotationZ(float rotationZ){
         this.rotationZ = rotationZ;
         rotation_changed = true;
+    }
+
+    public float getRotationX(){
+        return rotationX;
     }
 
     public void rotate(float rotationX, float rotationY, float rotationZ){
@@ -297,7 +305,9 @@ public class Mesh {
         int i;
         for (i = 0; i < vertices.length; i++) {
             transformedVertices[i] = vertices[i];
-            transformedVertices[i] = Geometry.VectorMultiply(transformedVertices[i], scale);
+            transformedVertices[i][0] *= scaleX;
+            transformedVertices[i][1] *= scaleY;
+            transformedVertices[i][2] *= scaleZ;
             transformedVertices[i] = Geometry.matrix_multiplyVector(matWorld, transformedVertices[i]);
         }
 
@@ -341,13 +351,26 @@ public class Mesh {
         return tListTransformed[i];
     }
 
-    public float getScale() {
-        return scale;
+    public void setScale(float scale) {
+        this.scaleX = scale;
+        this.scaleY = scale;
+        this.scaleZ = scale;
+        scale_changed = true;
     }
 
-    public void setScale(float scale) {
-        this.scale = scale;
+    public void setScaleX(float scale){
+        this.scaleX = scale;
         scale_changed = true;
+    }
+
+    public void setScaleY(float scale){
+        this.scaleY = scale;
+        scale_changed = true;
+    }
+
+    public void setScaleZ(float scale){
+        scale_changed = true;
+        this.scaleZ = scale;
     }
 
     public void setTexture(Texture texture){
