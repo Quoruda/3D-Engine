@@ -47,16 +47,15 @@ public class Engine{
 
         ArrayList<Triangle> trianglesToRaster = new ArrayList<>();
         Scene mainScene = scene;
-        if(mainScene != null){
-            mainScene.update(deltaTime);
-            ArrayList<Camera> cameras = scene.getCameras();
-            if(!cameras.isEmpty()){
-                ArrayList<Mesh> meshes = mainScene.getMeshes();
-                for(Camera camera: cameras){
-                    if(camera.isActive()){
-                        trianglesToRaster = render(camera, meshes);
-                        camera.takePhoto(trianglesToRaster);
-                    }
+        if(mainScene == null) return;
+        mainScene.update(deltaTime);
+        ArrayList<Camera> cameras = scene.getCameras();
+        if(!cameras.isEmpty()){
+            ArrayList<Mesh> meshes = mainScene.getMeshes();
+            for(Camera camera: cameras){
+                if(camera.isActive()){
+                    trianglesToRaster = render(camera, meshes);
+                    camera.takePhoto(trianglesToRaster);
                 }
             }
         }
@@ -65,41 +64,6 @@ public class Engine{
             display.frame = mainCamera.getFrame();
         }
     }
-
-    /*
-    public void moveCamera(Camera camera, boolean[] keys){
-        if(keys[KeyEvent.VK_UP]) {
-            camera.translateY(8*deltaTime);
-        }
-        if(keys[KeyEvent.VK_DOWN]) {
-            camera.translateY(-8*deltaTime);
-        }
-        if(keys[KeyEvent.VK_LEFT]) {
-            camera.translateX(-8*deltaTime);
-        }
-        if(keys[KeyEvent.VK_RIGHT]) {
-            camera.translateX(8*deltaTime);
-        }
-
-        float[] vForward = Geometry.VectorMultiply(camera.vLookDir, 8*deltaTime);
-
-        if(keys[KeyEvent.VK_Z]) {
-            camera.vCamera = Geometry.VectorAddition(camera.vCamera, vForward);
-        }
-        if(keys[KeyEvent.VK_S]) {
-            camera.vCamera = Geometry.VectorSubstraction(camera.vCamera, vForward);
-        }
-        if(keys[KeyEvent.VK_Q]) {
-            camera.fYaw -= 2*deltaTime;
-        }
-        if(keys[KeyEvent.VK_D]) {
-            camera.fYaw += 2*deltaTime;
-        }
-
-        camera.update();
-    }
-
-     */
 
     public ArrayList<Triangle> render(Camera camera, ArrayList<Mesh> meshes){
         float[][] matProj, matView ;
