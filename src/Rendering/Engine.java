@@ -48,11 +48,11 @@ public class Engine{
         ArrayList<Triangle> trianglesToRaster = new ArrayList<>();
         Scene mainScene = scene;
         if(mainScene != null){
-            mainScene.update(deltaTime, new boolean[256]);
+            mainScene.update(deltaTime);
             Camera camera = mainScene.getCamera();
             ArrayList<Mesh> meshes = mainScene.getMeshes();
             if (camera != null){
-                moveCamera(camera, new boolean[256]);
+                camera.update();
                 trianglesToRaster = render(camera, meshes);
             }
 
@@ -60,6 +60,7 @@ public class Engine{
         display.TrianglesToRaster = trianglesToRaster;
     }
 
+    /*
     public void moveCamera(Camera camera, boolean[] keys){
         if(keys[KeyEvent.VK_UP]) {
             camera.translateY(8*deltaTime);
@@ -88,10 +89,11 @@ public class Engine{
         if(keys[KeyEvent.VK_D]) {
             camera.fYaw += 2*deltaTime;
         }
-        float[] vTarget = new float[]{0,0,1,1};
-        float[][] matCameraRot = Geometry.getMatrixRotationY(camera.fYaw);
-        camera.vLookDir = Geometry.matrix_multiplyVector(matCameraRot, vTarget);
+
+        camera.update();
     }
+
+     */
 
     public ArrayList<Triangle> render(Camera camera, ArrayList<Mesh> meshes){
         float[][] matProj, matView ;

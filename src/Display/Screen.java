@@ -1,5 +1,6 @@
 package Display;
 
+import Inputs.KeyMap;
 import Inputs.KeyPressedListener;
 import Objects.Texture;
 import Rendering.Engine;
@@ -9,6 +10,8 @@ import Rendering.Triangle;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -26,7 +29,6 @@ public class Screen extends Display{
             }
         };
         jframe = new JFrame();
-
         int width = 700;
         int height = 600;
         jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,6 +39,25 @@ public class Screen extends Display{
         jframe.setResizable(false);
         jframe.requestFocusInWindow();
         TrianglesToRaster = new ArrayList<>();
+
+        KeyListener keyListener = new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                keyMap.pressed(e.getKeyCode());
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                keyMap.released(e.getKeyCode());
+            }
+        };
+        jframe.addKeyListener(keyListener);
     }
 
     @Override
