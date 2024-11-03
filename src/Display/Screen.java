@@ -81,8 +81,6 @@ public class Screen extends Display{
         width = jframe.getWidth();
         height = (int)(width*ratio);
         if(height > jframe.getHeight()){
-            System.out.println(jframe.getHeight());
-
             height = jframe.getHeight();
             width = (int)(height/ratio);
         }
