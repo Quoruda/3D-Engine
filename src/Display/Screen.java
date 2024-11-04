@@ -1,20 +1,11 @@
 package Display;
 
-import Inputs.KeyMap;
-import Inputs.KeyPressedListener;
-import Objects.Camera;
-import Objects.Texture;
-import Rendering.Engine;
-import Rendering.Triangle;
-
-
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 public class Screen extends Display{
 

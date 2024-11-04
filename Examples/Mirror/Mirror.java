@@ -86,7 +86,7 @@ public class Mirror {
         Scene scene = new Scene(){
             @Override
             public void update(float deltaTime) {
-                //ground.rotate(-0.4f*deltaTime, 0f, 0f);
+
                 mirror.setTexture(Texture.loadFromBufferedImage(cameraMirror.getFrame()));
 
                 //freecam

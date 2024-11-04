@@ -325,7 +325,7 @@ public class Camera {
                         cG = (color >> 8) & 0xFF;
                         cB = color & 0xFF;
 
-                        setPixel(j,i,(int) (cR),(int) (cG),(int) (cB), frame );
+                        setPixel(j,i,(int) (cR*lum),(int) (cG*lum),(int) (cB*lum), frame );
                         pDepthBuffer[i][j] = tex_w;
                     }
                     t += tstep;
@@ -395,7 +395,7 @@ public class Camera {
                         cR = (color >> 16) & 0xFF;
                         cG = (color >> 8) & 0xFF;
                         cB = color & 0xFF;
-                        setPixel(j,i,(int) (cR),(int) (cG),(int) (cB), frame );
+                        setPixel(j,i,(int) (cR*lum),(int) (cG*lum),(int) (cB*lum), frame );
                         pDepthBuffer[i][j] = tex_w;
                     }
                     t += tstep;
