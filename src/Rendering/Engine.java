@@ -77,7 +77,7 @@ public class Engine{
 
         ArrayList<Triangle> trianglesToRaster = new ArrayList<>();
 
-        float[] light_direction = new float[]{0,1,1,1};
+        float[] light_direction = new float[]{0,1,0,1};
         light_direction = Geometry.vector_normalise(light_direction);
 
         float[] vOffsetView = new float[]{1,1,0,1};

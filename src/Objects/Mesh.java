@@ -373,6 +373,13 @@ public class Mesh {
         this.scaleZ = scale;
     }
 
+    public void setScale(int x, int y, int z){
+        scale_changed = true;
+        scaleX = x;
+        scaleY = y;
+        scaleZ = z;
+    }
+
     public void setTexture(Texture texture){
         this.texture = texture;
     }
@@ -380,4 +387,6 @@ public class Mesh {
     public Texture getTexture(){
         return texture;
     }
+
+
 }

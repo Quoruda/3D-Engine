@@ -38,11 +38,27 @@ public class Camera {
         vCamera[2] = z;
     }
 
+    public float getPositionX(){
+        return vCamera[0];
+    }
+
+    public float getPositionY(){
+        return vCamera[1];
+    }
+
+    public float getPositionZ(){
+        return vCamera[2];
+    }
+
     public float[][] getMatCamera(){
         calculate_vLookDir_vUp();
         float[] vTarget = Geometry.VectorAddition(this.vCamera, vLookDir);
         float[][] matCamera = Geometry.Matrix_PointAt(this.vCamera, vTarget, vUp);
         return matCamera;
+    }
+
+    public float getYaw(){
+        return fYaw;
     }
 
     public void setYaw(float yaw){
@@ -59,6 +75,10 @@ public class Camera {
 
     public void rotateYawFromDegrees(float degrees){
         this.fYaw += degrees * (float) Math.PI / 180f;
+    }
+
+    public float getPitch(){
+        return pitch;
     }
 
     public void setPitch(float pitch){
@@ -305,7 +325,7 @@ public class Camera {
                         cG = (color >> 8) & 0xFF;
                         cB = color & 0xFF;
 
-                        setPixel(j,i,(int) (cR*lum),(int) (cG*lum),(int) (cB*lum), frame );
+                        setPixel(j,i,(int) (cR),(int) (cG),(int) (cB), frame );
                         pDepthBuffer[i][j] = tex_w;
                     }
                     t += tstep;
@@ -375,7 +395,7 @@ public class Camera {
                         cR = (color >> 16) & 0xFF;
                         cG = (color >> 8) & 0xFF;
                         cB = color & 0xFF;
-                        setPixel(j,i,(int) (cR*lum),(int) (cG*lum),(int) (cB*lum), frame );
+                        setPixel(j,i,(int) (cR),(int) (cG),(int) (cB), frame );
                         pDepthBuffer[i][j] = tex_w;
                     }
                     t += tstep;
