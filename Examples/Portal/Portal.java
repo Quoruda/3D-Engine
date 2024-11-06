@@ -1,4 +1,4 @@
-package Mirror;
+package Portal;
 
 import Display.Screen;
 import Inputs.KeyMap;
@@ -10,29 +10,38 @@ import Rendering.Engine;
 
 import java.awt.event.KeyEvent;
 
-public class Mirror {
+public class Portal {
 
     public static void main(String[] args) {
         Screen display = new Screen();
         display.setResolution(700,700);
         Engine engine = new Engine(display);
 
-        Camera camera1 = new Camera();
+        Camera camera1 = new FreeCam();
         camera1.setWidth(700);
         camera1.setRatio(1);
         camera1.setPosition(0f, 1f, 0f);
         camera1.setYawFromDegrees(180);
 
-        Mesh mirror = Mesh.loadFromObjectFile("Examples/Mirror/face.obj", true);
-        mirror.setPositionZ(-5F+0.1F);
-        mirror.setPositionY(1.5f);
-        mirror.setScaleY(2);
-        Camera cameraMirror = new Camera();
-        cameraMirror.setPosition(0f, 1f, 0f);
-        cameraMirror.setActive(true);
-        cameraMirror.setWidth(200);
-        camera1.setYawFromDegrees(180);
-        cameraMirror.setRatio(2);
+
+        //blue Portal
+        Mesh PortalBlueView = Mesh.loadFromObjectFile("Examples/Mirror/face.obj", true);
+        PortalBlueView.setPositionZ(-5F+0.1F);
+        PortalBlueView.setPositionY(1.5f);
+        PortalBlueView.setScaleY(2);
+
+        //orange portal
+        Camera PortalOrangeCamera = new Camera();
+        PortalOrangeCamera.setPosition(0f, 1.5f, 5F-0.1F);
+        PortalOrangeCamera.setActive(true);
+        PortalOrangeCamera.setWidth(200);
+        PortalOrangeCamera.setRatio(2);
+        PortalOrangeCamera.setYawFromDegrees(180);
+        float PortalOrangePosX = 0f;
+        float PortalOrangePosY = 1.5f;
+        float PortalOrangePosZ = 5f;
+
+
 
         KeyMap keyMap = new KeyMap();
         display.setKeyMap(keyMap);
@@ -87,53 +96,23 @@ public class Mirror {
             @Override
             public void update(float deltaTime) {
 
-                mirror.setTexture(Texture.loadFromBufferedImage(cameraMirror.getFrame()));
+                camera1.update(keyMap, deltaTime);
 
-                //freecam
-                float v = 2*deltaTime;
-                if(keyMap.is("lookRight")){
-                    camera1.rotateYaw(v);
-                }
-                if(keyMap.is("lookLeft")){
-                    camera1.rotateYaw(-v);
-                }
-                if(keyMap.is("lookUp")){
-                    camera1.rotatePitch(v);
-                }
-                if(keyMap.is("lookDown")){
-                    camera1.rotatePitch(-v);
-                }
-                v = 5f*v;
-                if(keyMap.is("forward")){
-                    camera1.moveForward(v);
-                }
-                if(keyMap.is("backward")){
-                    camera1.moveForward(-v);
-                }
-                if(keyMap.is("right")){
-                    camera1.moveRight(v);
-                }
-                if(keyMap.is("left")){
-                    camera1.moveRight(-v);
-                }
+                PortalBlueView.setTexture(Texture.loadFromBufferedImage(PortalOrangeCamera.getFrame()));
 
-                //move cameraMirror
-                cameraMirror.setPosition(
-                        0,
-                        mirror.getPositionY(),
-                        -5f
-                );
+                PortalOrangeCamera.setPositionZ(PortalOrangePosZ+(PortalBlueView.getPositionZ()-camera1.getPositionZ()));
+                PortalOrangeCamera.setPositionY(PortalOrangePosY+(PortalBlueView.getPositionY()-camera1.getPositionY()));
+                PortalOrangeCamera.setPositionX(PortalOrangePosX+(PortalBlueView.getPositionX()-camera1.getPositionX()));
 
-                cameraMirror.setYaw(camera1.getYaw()+(float)Math.PI);
-                //cameraMirror.setPitch(camera1.getPitch()+(float)Math.PI);
+                PortalOrangeCamera.setPitch(camera1.getPitch());
 
             }
 
         };
 
-        scene.addCameras(cameraMirror, camera1);
+        scene.addCameras(PortalOrangeCamera, camera1);
         scene.setMainCamera(camera1);
-        scene.addMeshes(mirror, ground, wall1, wall2, wall3, wall4);
+        scene.addMeshes(PortalBlueView, ground, wall1, wall2, wall3, wall4);
 
         engine.setScene(scene);
         engine.mainLoop();
