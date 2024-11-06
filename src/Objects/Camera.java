@@ -1,5 +1,6 @@
 package Objects;
 
+import Inputs.KeyMap;
 import Rendering.Geometry;
 import Rendering.Triangle;
 
@@ -48,6 +49,18 @@ public class Camera {
 
     public float getPositionZ(){
         return vCamera[2];
+    }
+
+    public void setPositionX(float x){
+        vCamera[0] = x;
+    }
+
+    public void setPositionY(float y){
+        vCamera[1] = y;
+    }
+
+    public void setPositionZ(float z){
+        vCamera[2] = z;
     }
 
     public float[][] getMatCamera(){
@@ -122,7 +135,7 @@ public class Camera {
         this.vCamera[0] += v;
     }
 
-    public void update(){
+    public void update(KeyMap keyMap, float deltaTime){
     }
 
     public void calculate_vLookDir_vUp(){
@@ -192,7 +205,11 @@ public class Camera {
 
     }
 
-    public static void setPixel(int x, int y, int r, int g, int b, BufferedImage frame){
+    public static void setPixel(int x, int y, int r, int g, int b, double lum, BufferedImage frame){
+        lum = 1;
+        r = (int) (r * lum);
+        g = (int) (g * lum);
+        b = (int) (b * lum);
         frame.setRGB(x,y,(r << 16) | (g << 8) | b);
     }
 
@@ -325,7 +342,7 @@ public class Camera {
                         cG = (color >> 8) & 0xFF;
                         cB = color & 0xFF;
 
-                        setPixel(j,i,(int) (cR*lum),(int) (cG*lum),(int) (cB*lum), frame );
+                        setPixel(j,i,cR,cG, cB, lum, frame );
                         pDepthBuffer[i][j] = tex_w;
                     }
                     t += tstep;
@@ -395,7 +412,7 @@ public class Camera {
                         cR = (color >> 16) & 0xFF;
                         cG = (color >> 8) & 0xFF;
                         cB = color & 0xFF;
-                        setPixel(j,i,(int) (cR*lum),(int) (cG*lum),(int) (cB*lum), frame );
+                        setPixel(j,i,cR,cG, cB, lum, frame );
                         pDepthBuffer[i][j] = tex_w;
                     }
                     t += tstep;
